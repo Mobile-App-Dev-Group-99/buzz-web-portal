@@ -46,6 +46,15 @@ const MESSAGES = [
   { id: 3, from: 'Mrs. Asare', student: 'Kwame Asare · SHS 2A', subject: 'Regarding exeat — returning tomorrow', time: '07:30 AM', status: 'Read' },
 ]
 
+const PARENT_HISTORY = [
+  { date: 'Mon 17 Jun', event: 'Arrived at school', time: '7:24 AM', status: 'present' },
+  { date: 'Fri 14 Jun', event: 'Arrived at school', time: '7:18 AM', status: 'present' },
+  { date: 'Thu 13 Jun', event: 'Arrived late', time: '9:45 AM', status: 'late' },
+  { date: 'Wed 12 Jun', event: 'Arrived at school', time: '7:31 AM', status: 'present' },
+  { date: 'Tue 11 Jun', event: 'Arrived at school', time: '7:22 AM', status: 'present' },
+  { date: 'Mon 10 Jun', event: 'Absent — no scan', time: '', status: 'absent' },
+]
+
 // ── Helpers ───────────────────────────────────────────
 function statusBadge(status: string) {
   const map: Record<string, string> = {
@@ -53,6 +62,7 @@ function statusBadge(status: string) {
     late: 'bg-amber-100 text-amber-800',
     departed: 'bg-blue-100 text-blue-800',
     absent: 'bg-red-100 text-red-800',
+    present: 'bg-green-100 text-green-800',
     Active: 'bg-green-100 text-green-800',
     'On Exeat': 'bg-blue-100 text-blue-800',
     Overdue: 'bg-amber-100 text-amber-800',
@@ -79,7 +89,288 @@ export default function App() {
   const [view, setView] = useState('dashboard')
   const [lockdown, setLockdown] = useState(false)
   const [showExeatForm, setShowExeatForm] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userRole, setUserRole] = useState('admin')
+  const [emailInput, setEmailInput] = useState('')
 
+  // ── LOGIN PAGE ────────────────────────────────────
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-[#1a1a18] flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-[#1D9E75] rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl">👆</div>
+            <h1 className="text-3xl font-bold text-white mb-2">BuzzApp</h1>
+            <p className="text-gray-500 text-sm">School Web Portal · Prempeh Academy</p>
+          </div>
+
+          {/* Card */}
+          <div className="bg-white rounded-2xl p-8">
+            <h2 className="text-xl font-bold text-[#1a1a18] mb-1">Welcome back</h2>
+            <p className="text-gray-400 text-sm mb-6">Sign in to your school account</p>
+
+            <div className="mb-4">
+              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 block">Email Address</label>
+              <input
+                type="email"
+                placeholder="your@school.edu.gh"
+                value={emailInput}
+                onChange={e => {
+                  setEmailInput(e.target.value)
+                  if (e.target.value.includes('teacher')) setUserRole('teacher')
+                  else if (e.target.value.includes('parent')) setUserRole('parent')
+                  else setUserRole('admin')
+                }}
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#1D9E75] bg-gray-50"
+              />
+            </div>
+
+            <div className="mb-6">
+              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2 block">Password</label>
+              <input type="password" placeholder="Enter your password" className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#1D9E75] bg-gray-50" />
+            </div>
+
+            <button
+              onClick={() => setIsLoggedIn(true)}
+              className="w-full bg-[#1D9E75] text-white font-bold py-3 rounded-xl text-sm hover:bg-[#0F6E56] transition-colors"
+            >
+              Sign In
+            </button>
+
+            <div className="mt-6 pt-6 border-t border-gray-100">
+              <p className="text-xs text-gray-400 text-center mb-3">Demo — sign in as:</p>
+              <div className="flex gap-2">
+                {[
+                  { label: 'Admin', role: 'admin' },
+                  { label: 'Teacher', role: 'teacher' },
+                  { label: 'Parent', role: 'parent' },
+                ].map(r => (
+                  <button
+                    key={r.label}
+                    onClick={() => { setUserRole(r.role); setIsLoggedIn(true); }}
+                    className="flex-1 border border-gray-200 text-xs font-medium py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <p className="text-center text-gray-600 text-xs mt-6">BuzzApp v1.0.0 · Group 99 · CodeQuest 2026 · KNUST</p>
+        </div>
+      </div>
+    )
+  }
+
+  // ── TEACHER VIEW ──────────────────────────────────
+  if (userRole === 'teacher') {
+    return (
+      <div className="min-h-screen bg-[#F7F6F2] font-sans text-sm">
+        {/* Header */}
+        <header className="bg-[#1a1a18] px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-[#1D9E75] rounded-lg flex items-center justify-center text-white text-sm">👆</div>
+            <div>
+              <div className="text-white font-semibold text-sm">BuzzApp</div>
+              <div className="text-gray-500 text-[10px]">Teacher Portal</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-1.5">
+              <div className="w-5 h-5 rounded-full bg-[#1D9E75] flex items-center justify-center text-white text-[10px] font-bold">KB</div>
+              <span className="text-gray-300 text-xs">Mr. Boateng</span>
+            </div>
+            <button onClick={() => { setIsLoggedIn(false); setUserRole('admin'); }} className="text-xs text-gray-500 hover:text-gray-300">Log out</button>
+          </div>
+        </header>
+
+        <div className="p-6">
+          {/* Class header */}
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-xl font-bold text-[#1a1a18]">SHS 2B — Class Attendance</h1>
+              <p className="text-gray-400 text-xs mt-1">Monday, 17 June 2026 · 9:00 AM</p>
+            </div>
+            <div className="flex items-center gap-2 bg-[#1D9E75]/10 px-3 py-1.5 rounded-full">
+              <div className="w-2 h-2 rounded-full bg-[#1D9E75]"></div>
+              <span className="text-xs font-semibold text-[#1D9E75]">LIVE</span>
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-4 gap-3 mb-6">
+            {[
+              { label: 'Present', val: '5', color: 'text-green-700', bg: 'bg-green-50' },
+              { label: 'Late', val: '2', color: 'text-amber-700', bg: 'bg-amber-50' },
+              { label: 'Absent', val: '1', color: 'text-red-700', bg: 'bg-red-50' },
+              { label: 'Total', val: '8', color: 'text-gray-700', bg: 'bg-gray-50' },
+            ].map(s => (
+              <div key={s.label} className={`${s.bg} rounded-xl p-4 text-center`}>
+                <div className={`text-3xl font-bold ${s.color}`}>{s.val}</div>
+                <div className={`text-xs font-medium ${s.color} mt-1`}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Attendance table */}
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-100 flex gap-3">
+              {['All (8)', 'Present (5)', 'Late (2)', 'Absent (1)'].map(tab => (
+                <button key={tab} className="text-xs font-medium text-gray-500 hover:text-[#1D9E75] pb-1 border-b-2 border-transparent hover:border-[#1D9E75] transition-all first:text-[#1D9E75] first:border-[#1D9E75]">{tab}</button>
+              ))}
+            </div>
+            <table className="w-full">
+              <thead><tr className="bg-gray-50 border-b border-gray-200">
+                {['Student', 'ID', 'Status', 'Arrival Time', 'Action'].map(h => (
+                  <th key={h} className="text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wide px-4 py-2">{h}</th>
+                ))}
+              </tr></thead>
+              <tbody>
+                {[
+                  { name: 'Kofi Mensah', id: 'BZ-2041', status: 'arrived', time: '7:24 AM' },
+                  { name: 'Ama Boateng', id: 'BZ-1823', status: 'late', time: '9:45 AM' },
+                  { name: 'Ekow Osei', id: 'BZ-2187', status: 'arrived', time: '7:31 AM' },
+                  { name: 'Akua Asante', id: 'BZ-2099', status: 'arrived', time: '7:18 AM' },
+                  { name: 'Yaw Darko', id: 'BZ-2201', status: 'absent', time: '' },
+                  { name: 'Fiifi Owusu', id: 'BZ-2150', status: 'arrived', time: '7:22 AM' },
+                  { name: 'Abena Frimpong', id: 'BZ-1990', status: 'late', time: '8:52 AM' },
+                  { name: 'Kwesi Agyeman', id: 'BZ-2033', status: 'arrived', time: '7:25 AM' },
+                ].map(s => (
+                  <tr key={s.id} className="border-b border-gray-50 hover:bg-gray-50">
+                    <td className="px-4 py-2.5 font-medium text-xs">{s.name}</td>
+                    <td className="px-4 py-2.5 text-[11px] text-gray-400 font-mono">{s.id}</td>
+                    <td className="px-4 py-2.5"><span className={statusBadge(s.status)}>{s.status}</span></td>
+                    <td className="px-4 py-2.5 text-[11px] text-gray-400 font-mono">{s.time || '—'}</td>
+                    <td className="px-4 py-2.5">
+                      {s.status === 'absent' && (
+                        <button className="text-xs bg-[#1a1a18] text-white px-2 py-0.5 rounded font-medium">Mark Present</button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4 flex gap-2">
+            <button className="bg-[#1D9E75] text-white text-xs font-medium px-4 py-2 rounded-lg">Export Attendance PDF</button>
+            <button className="border border-gray-200 text-xs font-medium px-4 py-2 rounded-lg">Send Absentee Alerts</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ── PARENT VIEW ───────────────────────────────────
+  if (userRole === 'parent') {
+    return (
+      <div className="min-h-screen bg-[#F7F6F2] font-sans text-sm">
+        {/* Header */}
+        <header className="bg-[#1a1a18] px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-[#1D9E75] rounded-lg flex items-center justify-center text-white text-sm">👆</div>
+            <div>
+              <div className="text-white font-semibold text-sm">BuzzApp</div>
+              <div className="text-gray-500 text-[10px]">Parent Portal</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-1.5">
+              <div className="w-5 h-5 rounded-full bg-[#1D9E75] flex items-center justify-center text-white text-[10px] font-bold">AM</div>
+              <span className="text-gray-300 text-xs">Mrs. Mensah</span>
+            </div>
+            <button onClick={() => { setIsLoggedIn(false); setUserRole('admin'); }} className="text-xs text-gray-500 hover:text-gray-300">Log out</button>
+          </div>
+        </header>
+
+        <div className="p-6 max-w-4xl mx-auto">
+          {/* Child switcher */}
+          <div className="flex gap-3 mb-6">
+            {[
+              { name: 'Kofi Mensah', class: 'SHS 2B', active: true },
+              { name: 'Abena Mensah', class: 'JHS 3A', active: false },
+            ].map(child => (
+              <button key={child.name} className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium border transition-all ${child.active ? 'bg-[#1D9E75] text-white border-[#1D9E75]' : 'bg-white text-gray-600 border-gray-200 hover:border-[#1D9E75]'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${child.active ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'}`}>
+                  {child.name.split(' ').map(n => n[0]).join('')}
+                </div>
+                {child.name} · {child.class}
+              </button>
+            ))}
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="text-[10px] font-semibold text-gray-400 uppercase mb-2">Attendance Rate</div>
+              <div className="text-3xl font-bold text-[#1a1a18]">94%</div>
+              <div className="text-xs text-gray-400 mt-1">This term</div>
+              <div className="mt-2 inline-block bg-green-50 text-green-700 text-[10px] font-semibold px-2 py-0.5 rounded-full">Excellent</div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="text-[10px] font-semibold text-gray-400 uppercase mb-2">Current Streak</div>
+              <div className="text-3xl font-bold text-[#1a1a18]">12 🔥</div>
+              <div className="text-xs text-gray-400 mt-1">Days on time</div>
+              <div className="mt-2 inline-block bg-green-50 text-green-700 text-[10px] font-semibold px-2 py-0.5 rounded-full">Personal best 🏅</div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="text-[10px] font-semibold text-gray-400 uppercase mb-2">Today's Status</div>
+              <div className="text-3xl font-bold text-green-600">✓</div>
+              <div className="text-xs text-gray-400 mt-1">Arrived 7:24 AM · Gate 1</div>
+              <div className="mt-2 inline-block bg-green-50 text-green-700 text-[10px] font-semibold px-2 py-0.5 rounded-full">On time</div>
+            </div>
+          </div>
+
+          {/* Attendance history */}
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden mb-4">
+            <div className="px-4 py-3 border-b border-gray-100">
+              <span className="font-semibold text-xs text-[#1a1a18]">Attendance History — Kofi Mensah</span>
+            </div>
+            <table className="w-full">
+              <thead><tr className="bg-gray-50 border-b border-gray-200">
+                {['Date', 'Event', 'Time', 'Status'].map(h => (
+                  <th key={h} className="text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wide px-4 py-2">{h}</th>
+                ))}
+              </tr></thead>
+              <tbody>
+                {PARENT_HISTORY.map((item, i) => (
+                  <tr key={i} className="border-b border-gray-50 hover:bg-gray-50">
+                    <td className="px-4 py-2.5 text-xs font-medium text-gray-600">{item.date}</td>
+                    <td className="px-4 py-2.5 text-xs text-gray-500">{item.event}</td>
+                    <td className="px-4 py-2.5 text-[11px] text-gray-400 font-mono">{item.time || '—'}</td>
+                    <td className="px-4 py-2.5"><span className={statusBadge(item.status)}>{item.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Notifications */}
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-100">
+              <span className="font-semibold text-xs text-[#1a1a18]">Recent Notifications</span>
+            </div>
+            {[
+              { icon: '🚶', text: 'Kofi arrived at school — Gate 1 · 7:24 AM', time: 'Today', color: 'bg-green-50' },
+              { icon: '⏰', text: 'Kofi arrived late — 9:45 AM · 75 mins after bell', time: 'Thu 13 Jun', color: 'bg-amber-50' },
+              { icon: '🚶', text: 'Kofi arrived at school — Gate 1 · 7:18 AM', time: 'Fri 14 Jun', color: 'bg-green-50' },
+            ].map((n, i) => (
+              <div key={i} className="flex items-center gap-3 px-4 py-3 border-b border-gray-50 hover:bg-gray-50">
+                <div className={`w-8 h-8 ${n.color} rounded-full flex items-center justify-center text-sm`}>{n.icon}</div>
+                <div className="flex-1">
+                  <div className="text-xs text-gray-700">{n.text}</div>
+                </div>
+                <div className="text-[10px] text-gray-300">{n.time}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ── ADMIN VIEW (default) ──────────────────────────
   const navItems = [
     { id: 'dashboard', icon: '▦', label: 'Dashboard' },
     { id: 'attendance', icon: '⊙', label: 'Gate Attendance' },
@@ -109,7 +400,6 @@ export default function App() {
 
       {/* Sidebar */}
       <aside className="w-52 bg-[#1a1a18] flex flex-col flex-shrink-0 min-h-screen">
-        {/* Logo */}
         <div className="px-4 py-5 border-b border-white/5">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-8 h-8 bg-[#1D9E75] rounded-lg flex items-center justify-center text-white text-sm">👆</div>
@@ -127,7 +417,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Nav */}
         <nav className="flex-1 py-3">
           <div className="px-4 py-1 text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Main</div>
           {navItems.slice(0, 6).map(item => (
@@ -150,7 +439,6 @@ export default function App() {
           </button>
         </nav>
 
-        {/* Footer */}
         <div className="px-4 py-3 border-t border-white/5">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-gray-300 text-xs font-semibold">HK</div>
@@ -159,27 +447,24 @@ export default function App() {
               <div className="text-gray-500 text-[10px]">Administrator</div>
             </div>
           </div>
+          <button onClick={() => setIsLoggedIn(false)} className="mt-2 text-[10px] text-gray-600 hover:text-gray-400">Log out</button>
         </div>
       </aside>
 
       {/* Main */}
       <div className="flex-1 flex flex-col">
-        {/* Topbar */}
         <header className="bg-white border-b border-gray-200 px-6 h-12 flex items-center justify-between flex-shrink-0">
           <span className="font-semibold text-[#1a1a18] text-sm capitalize">{navItems.find(n => n.id === view)?.label || 'Dashboard'}</span>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-md border border-gray-200">Mon, 16 Jun 2026 · 11:49 AM</span>
+            <span className="text-xs text-gray-400 bg-gray-100 px-3 py-1 rounded-md border border-gray-200">Mon, 17 Jun 2026 · 11:49 AM</span>
             <button className="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-400 hover:bg-gray-50 text-sm">🔔</button>
           </div>
         </header>
 
-        {/* Content */}
         <main className="flex-1 p-6 overflow-y-auto">
 
-          {/* DASHBOARD */}
           {view === 'dashboard' && (
             <div>
-              {/* Stats */}
               <div className="grid grid-cols-4 gap-3 mb-5">
                 {[
                   { label: 'Present Today', val: '847', sub: '↑ 12 from yesterday', color: 'text-green-700', bg: 'bg-green-50', icon: '✓' },
@@ -197,9 +482,7 @@ export default function App() {
                   </div>
                 ))}
               </div>
-
               <div className="grid grid-cols-5 gap-4 mb-4">
-                {/* Gate Feed */}
                 <div className="col-span-3 bg-white rounded-xl border border-gray-200 overflow-hidden">
                   <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center">
                     <span className="font-semibold text-[#1a1a18] text-xs">⚡ Live Gate Activity</span>
@@ -208,7 +491,7 @@ export default function App() {
                   {GATE_FEED.map(item => (
                     <div key={item.id} className="flex items-center gap-3 px-4 py-2.5 border-b border-gray-50 hover:bg-gray-50">
                       <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center text-[10px] font-bold text-green-800">
-                        {item.name.split(' ').map(n => n[0]).join('')}
+                        {item.name.split(' ').map((n: string) => n[0]).join('')}
                       </div>
                       <div className="flex-1">
                         <div className="font-medium text-xs text-[#1a1a18]">{item.name}</div>
@@ -219,8 +502,6 @@ export default function App() {
                     </div>
                   ))}
                 </div>
-
-                {/* Alerts */}
                 <div className="col-span-2 bg-white rounded-xl border border-gray-200 overflow-hidden">
                   <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center">
                     <span className="font-semibold text-[#1a1a18] text-xs">🔔 System Alerts</span>
@@ -237,8 +518,6 @@ export default function App() {
                   ))}
                 </div>
               </div>
-
-              {/* Class attendance */}
               <div className="grid grid-cols-5 gap-4">
                 <div className="col-span-3 bg-white rounded-xl border border-gray-200 overflow-hidden">
                   <div className="px-4 py-3 border-b border-gray-100">
@@ -273,7 +552,6 @@ export default function App() {
             </div>
           )}
 
-          {/* ATTENDANCE */}
           {view === 'attendance' && (
             <div>
               <div className="flex gap-2 mb-4">
@@ -307,7 +585,6 @@ export default function App() {
             </div>
           )}
 
-          {/* STUDENTS */}
           {view === 'students' && (
             <div>
               <div className="flex gap-2 mb-4">
@@ -344,7 +621,6 @@ export default function App() {
             </div>
           )}
 
-          {/* EXEAT */}
           {view === 'exeat' && (
             <div>
               <div className="grid grid-cols-3 gap-3 mb-4">
@@ -421,7 +697,6 @@ export default function App() {
             </div>
           )}
 
-          {/* RESULTS */}
           {view === 'results' && (
             <div>
               <div className="flex gap-2 mb-4">
@@ -460,7 +735,6 @@ export default function App() {
             </div>
           )}
 
-          {/* MESSAGING */}
           {view === 'messaging' && (
             <div>
               <div className="flex gap-2 mb-4">
@@ -493,7 +767,6 @@ export default function App() {
             </div>
           )}
 
-          {/* STAFF */}
           {view === 'staff' && (
             <div>
               <div className="flex gap-2 mb-4">
@@ -529,7 +802,6 @@ export default function App() {
             </div>
           )}
 
-          {/* REPORTS */}
           {view === 'reports' && (
             <div>
               <div className="grid grid-cols-4 gap-3 mb-5">
@@ -574,7 +846,6 @@ export default function App() {
             </div>
           )}
 
-          {/* SETTINGS */}
           {view === 'settings' && (
             <div className="bg-white rounded-xl border border-gray-200 p-4">
               <div className="font-semibold text-xs mb-4">School Configuration</div>
