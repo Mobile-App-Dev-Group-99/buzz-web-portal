@@ -1,73 +1,79 @@
-# React + TypeScript + Vite
+# BuzzApp Web Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+School administration web portal for BuzzApp — Biometric Attendance & Safety System.
 
-Currently, two official plugins are available:
+**CodeQuest 2026 | Group 99 | KNUST**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## What it does
 
-## React Compiler
+The BuzzApp Web Portal is a browser-based dashboard used by school administrators, teachers, and parents to monitor student attendance, manage exeats, view academic results, and communicate with parents.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## User Roles
 
-## Expanding the ESLint configuration
+| Role | What they see |
+|---|---|
+| **Admin** | Full dashboard — attendance, students, exeats, results, messaging, staff, reports, settings |
+| **Teacher** | Class attendance table with mark present and export |
+| **Parent** | Child's attendance history and notifications |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Demo Login
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Go to the login page and click one of the demo buttons:
+- **Admin** — full school dashboard
+- **Teacher** — class attendance view
+- **Parent** — child attendance history
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Tech Stack
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- React + TypeScript
+- Vite
+- Tailwind CSS
+
+## How to Run
+
+**Requirements:** Node.js installed
+
+**Steps:**
+
+```bash
+# 1. Clone the repo
+git clone https://github.com/Mobile-App-Dev-Group-99/buzz-web-portal.git
+
+# 2. Go into the folder
+cd buzz-web-portal
+
+# 3. Install dependencies
+npm install
+
+# 4. Start the development server
+npm run dev
+
+# 5. Open in browser
+http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Screens
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Login page with role-based access
+- Admin Dashboard — live gate feed, stats, class attendance, alerts
+- Gate Attendance — full scan log table
+- Students — list with biometric status
+- Exeat Management — approve/deny exeats
+- Academic Results — grade submissions and delivery
+- Messaging — parent inbox and announcements
+- Staff Management — teacher and staff accounts
+- Reports & Exports — PDF and Excel reports
+- System Settings — school configuration
+- Emergency Lockdown mode
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Repository
+
+Part of the BuzzApp project:
+- `buzz-mobile` — Expo mobile apps
+- `buzz-web-portal` — this repo
+- `buzz-backend` — Spring Boot microservices
+- `buzz-database` — PostgreSQL schema
+
+## Team
+
+Group 99 | CodeQuest 2026 | KNUST
