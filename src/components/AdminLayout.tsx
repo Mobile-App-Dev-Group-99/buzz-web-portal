@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Avatar from './Avatar'
 
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
 export default function AdminLayout() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const handleLogout = () => {
     logout()
@@ -100,7 +101,7 @@ export default function AdminLayout() {
       <div className="flex-1 flex flex-col">
         <header className="bg-white border-b border-[#D8D5CC] px-6 h-12 flex items-center justify-between flex-shrink-0">
           <span className="font-semibold text-[#1a1a18] text-sm">
-            {NAV_ITEMS.find(n => window.location.pathname === n.to || window.location.pathname.startsWith(n.to + '/'))?.label || 'Dashboard'}
+            {NAV_ITEMS.find(n => location.pathname === n.to || location.pathname.startsWith(n.to + '/'))?.label || 'Dashboard'}
           </span>
           <div className="flex items-center gap-3">
             <span className="text-xs text-[#5F5E5A] bg-[#F7F6F2] px-3 py-1 rounded-md border border-[#D8D5CC]">

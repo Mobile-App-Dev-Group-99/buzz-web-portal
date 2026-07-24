@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
-import { login as apiLogin } from '../services/api'
+import { login as apiLogin, getMe } from '../services/api'
 import type { Role } from '../types'
 
 interface AuthUser {
@@ -49,18 +49,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginFn = async (email: string, password: string) => {
     const data = await apiLogin(email, password)
-    const token = data.token || data.accessToken
+    const token = data.token
+    if (!token) throw new Error('No token received')
+
+    let role = (data.role || '').toLowerCase() as Role
+    if (!role || !['admin', 'teacher', 'student', 'parent'].includes(role)) {
+      role = detectRole(email)
+    }
+
     const userData: AuthUser = {
-      id: data.userId || data.id,
+      id: 0,
       email: data.email || email,
-      role: data.role?.toLowerCase() || detectRole(email),
-      firstName: data.firstName || email.split('@')[0],
-      lastName: data.lastName || '',
+      role,
+      firstName: email.split('@')[0],
+      lastName: '',
       schoolId: data.schoolId,
     }
+
     localStorage.setItem('token', token)
     localStorage.setItem('user', JSON.stringify(userData))
     setUser(userData)
+
+    try {
+      const me = await getMe()
+      if (me) {
+        const updated: AuthUser = {
+          ...userData,
+          id: me.id || userData.id,
+          firstName: me.username || me.firstName || userData.firstName,
+          lastName: me.lastName || '',
+        }
+        localStorage.setItem('user', JSON.stringify(updated))
+        setUser(updated)
+      }
+    } catch {
+      // /me might fail for some roles, keep what we have
+    }
   }
 
   const logout = () => {

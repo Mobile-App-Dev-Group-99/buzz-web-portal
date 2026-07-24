@@ -16,80 +16,134 @@ apiInstances.forEach(instance => {
     if (token) config.headers.Authorization = `Bearer ${token}`
     return config
   })
+  instance.interceptors.response.use(
+    (res) => res,
+    (err) => {
+      if (err.response?.status === 401) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        window.location.href = '/login'
+      }
+      return Promise.reject(err)
+    }
+  )
 })
 
 export async function login(email: string, password: string) {
-  const res = await authApi.post('/login', { email, password })
+  const res = await authApi.post('/api/auth/login', { email, password })
   return res.data
 }
 
-export async function validateToken(token: string) {
-  const res = await authApi.post('/validate', null, { params: { token } })
+export async function getMe() {
+  const res = await authApi.get('/api/auth/me')
+  return res.data
+}
+
+export async function validateToken() {
+  const res = await authApi.get('/api/auth/validate')
   return res.data
 }
 
 export async function forgotPassword(email: string) {
-  const res = await authApi.post('/forgot-password', { email })
+  const res = await authApi.post('/api/auth/forgot-password', { email })
   return res.data
 }
 
-export async function resetPassword(token: string, newPassword: string) {
-  const res = await authApi.post('/admin/reset-password', { token, newPassword })
+export async function resetPassword(email: string, newPassword: string) {
+  const res = await authApi.post('/api/auth/admin/reset-password', { email, newPassword })
   return res.data
 }
 
-export async function getAdminDashboardStats(schoolId: number) {
-  const res = await attendanceApi.get(`/api/admin/dashboard-stats/${schoolId}`)
+export async function getTodaySummary() {
+  const res = await attendanceApi.get('/api/attendance/summary/today')
   return res.data
 }
 
-export async function getAdminStudents(schoolId: number) {
-  const res = await attendanceApi.get(`/api/admin/school/${schoolId}/students`)
+export async function getLiveFeed() {
+  const res = await attendanceApi.get('/api/attendance/live')
   return res.data
 }
 
-export async function getAdminTeachers(schoolId: number) {
-  const res = await attendanceApi.get(`/api/admin/school/${schoolId}/teachers`)
+export async function getClassesToday() {
+  const res = await attendanceApi.get('/api/attendance/classes/today')
   return res.data
 }
 
-export async function createStudent(data: any) {
-  const res = await attendanceApi.post('/api/admin/students', data)
+export async function getWeeklyRates() {
+  const res = await attendanceApi.get('/api/attendance/weekly')
   return res.data
 }
 
-export async function createTeacher(data: any) {
-  const res = await attendanceApi.post('/api/admin/teachers', data)
+export async function getClassToday(className: string) {
+  const res = await attendanceApi.get(`/api/attendance/class/${className}/today`)
   return res.data
 }
 
-export async function getAdminExeats(schoolId: number) {
-  const res = await attendanceApi.get(`/api/admin/school/${schoolId}/exeats`)
+export async function getAdminStudents() {
+  const res = await attendanceApi.get('/api/admin/students')
   return res.data
 }
 
-export async function createExeat(data: any) {
-  const res = await attendanceApi.post('/api/admin/exeats', data)
+export async function getAdminTeachers() {
+  const res = await attendanceApi.get('/api/admin/teachers')
+  return res.data
+}
+
+export async function getAdminParents() {
+  const res = await attendanceApi.get('/api/admin/parents')
+  return res.data
+}
+
+export async function createStudent(data: {
+  firstName: string; lastName: string; className: string;
+  email: string; password: string; gender?: string; studentType?: string;
+}) {
+  const res = await attendanceApi.post('/api/admin/student', data)
+  return res.data
+}
+
+export async function createParent(data: {
+  firstName: string; lastName: string; phone?: string;
+  email: string; password: string; studentIds?: number[];
+}) {
+  const res = await attendanceApi.post('/api/admin/parent', data)
+  return res.data
+}
+
+export async function linkStudentParent(studentId: number, parentId: number) {
+  const res = await attendanceApi.post('/api/admin/link', { studentId, parentId })
+  return res.data
+}
+
+export async function getTeacherClass() {
+  const res = await attendanceApi.get('/api/teacher/me/class')
+  return res.data
+}
+
+export async function getTeacherExeats() {
+  const res = await attendanceApi.get('/api/teacher/exeats')
+  return res.data
+}
+
+export async function createTeacherExeat(data: {
+  studentId: number; reason: string; expectedReturn?: string;
+}) {
+  const res = await attendanceApi.post('/api/teacher/exeat/create', data)
   return res.data
 }
 
 export async function approveExeat(exeatId: number) {
-  const res = await attendanceApi.put(`/api/admin/exeats/${exeatId}/approve`)
+  const res = await attendanceApi.put(`/api/teacher/exeat/${exeatId}/approve`)
   return res.data
 }
 
-export async function getAttendanceForClass(classLevel: string, className: string) {
-  const res = await attendanceApi.get('/api/teacher/attendance', { params: { classLevel, className } })
+export async function denyExeat(exeatId: number) {
+  const res = await attendanceApi.put(`/api/teacher/exeat/${exeatId}/deny`)
   return res.data
 }
 
-export async function getTeacherExeats(teacherId: number) {
-  const res = await attendanceApi.get(`/api/teacher/exeats/${teacherId}`)
-  return res.data
-}
-
-export async function createTeacherExeat(data: any) {
-  const res = await attendanceApi.post('/api/teacher/exeats', data)
+export async function getSchoolExeats() {
+  const res = await safetyApi.get('/api/exeat/school')
   return res.data
 }
 
@@ -98,12 +152,9 @@ export async function getParentNotifications(parentId: number) {
   return res.data
 }
 
-export async function getParentChildren(parentId: number) {
-  const res = await attendanceApi.get(`/api/parent/${parentId}/children`)
-  return res.data
-}
-
-export async function markAttendance(data: any) {
-  const res = await attendanceApi.post('/api/teacher/attendance/mark', data)
+export async function markManualAttendance(data: {
+  studentId: number; status: string; note?: string;
+}) {
+  const res = await attendanceApi.post('/api/attendance/manual', data)
   return res.data
 }
