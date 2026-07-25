@@ -94,11 +94,47 @@ export async function getAdminParents() {
   return res.data
 }
 
+function getSchoolId(): number | undefined {
+  try {
+    const raw = localStorage.getItem('user')
+    if (raw) {
+      const user = JSON.parse(raw)
+      return user.schoolId || user.school?.id
+    }
+  } catch {}
+  return undefined
+}
+
 export async function createStudent(data: {
   firstName: string; lastName: string; className: string;
-  email: string; password: string; gender?: string; studentType?: string;
+  email: string; password: string;
 }) {
-  const res = await attendanceApi.post('/api/admin/student', data)
+  const res = await authApi.post('/api/auth/register', { ...data, role: 'STUDENT', schoolId: getSchoolId() })
+  return res.data
+}
+
+export async function updateStudent(id: number, data: { firstName: string; lastName: string; className: string }) {
+  const res = await attendanceApi.put(`/api/admin/student/${id}`, data)
+  return res.data
+}
+
+export async function deleteStudent(id: number) {
+  const res = await attendanceApi.delete(`/api/admin/student/${id}`)
+  return res.data
+}
+
+export async function deleteTeacher(id: number) {
+  const res = await attendanceApi.delete(`/api/admin/teacher/${id}`)
+  return res.data
+}
+
+export async function createExeat(data: { studentId: number; reason: string; startDate: string; endDate: string }) {
+  const res = await safetyApi.post('/api/exeat/create', data)
+  return res.data
+}
+
+export async function updateExeatStatus(id: number, status: string) {
+  const res = await safetyApi.put(`/api/exeat/${id}/status`, { status })
   return res.data
 }
 
