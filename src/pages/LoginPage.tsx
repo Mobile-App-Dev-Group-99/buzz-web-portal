@@ -21,21 +21,8 @@ export default function LoginPage() {
         : 'admin'
       navigate(role === 'admin' ? '/admin' : role === 'teacher' ? '/teacher' : '/parent')
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Login failed. Check your credentials.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const demoLogin = async (role: string) => {
-    setError('')
-    setLoading(true)
-    try {
-      const demoEmail = `demo-${role}@prempeh.edu.gh`
-      await login(demoEmail, 'demo')
-      navigate(role === 'admin' ? '/admin' : role === 'teacher' ? '/teacher' : '/parent')
-    } catch {
-      navigate(role === 'admin' ? '/admin' : role === 'teacher' ? '/teacher' : '/parent')
+      const msg = err?.response?.data?.error || err?.response?.data?.message || 'Login failed. Check your credentials.'
+      setError(msg)
     } finally {
       setLoading(false)
     }
@@ -93,26 +80,6 @@ export default function LoginPage() {
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
-
-          <div className="mt-6 pt-6 border-t border-[#F7F6F2]">
-            <p className="text-[10px] text-[#5F5E5A] text-center mb-3 uppercase tracking-wide font-semibold">Demo Access</p>
-            <div className="flex gap-2">
-              {[
-                { label: 'Admin', role: 'admin' },
-                { label: 'Teacher', role: 'teacher' },
-                { label: 'Parent', role: 'parent' },
-              ].map(r => (
-                <button
-                  key={r.role}
-                  onClick={() => demoLogin(r.role)}
-                  disabled={loading}
-                  className="flex-1 border border-[#D8D5CC] text-xs font-medium py-2 rounded-lg hover:bg-[#F7F6F2] transition-colors text-[#1a1a18]"
-                >
-                  {r.label}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
         <p className="text-center text-[#5F5E5A] text-xs mt-6">BuzzApp v2.0 · Group 99 · CodeQuest 2026</p>
       </div>

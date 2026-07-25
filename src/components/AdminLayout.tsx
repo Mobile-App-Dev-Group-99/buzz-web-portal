@@ -85,7 +85,7 @@ export default function AdminLayout() {
         <div className="px-4 py-3 border-t border-white/5">
           <div className="flex items-center gap-2">
             <Avatar
-              initials={user ? `${user.firstName[0]}${user.lastName[0]}` : 'HK'}
+              initials={user ? `${(user.firstName || '')[0] || ''}${(user.lastName || '')[0] || ''}` : 'HK'}
               size="sm"
               color="bg-gray-700 text-gray-300"
             />

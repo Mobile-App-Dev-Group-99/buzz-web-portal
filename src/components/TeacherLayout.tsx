@@ -26,7 +26,7 @@ export default function TeacherLayout() {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-1.5">
             <Avatar
-              initials={user ? `${user.firstName[0]}${user.lastName[0]}` : 'KB'}
+              initials={user ? `${(user.firstName || '')[0] || ''}${(user.lastName || '')[0] || ''}` : 'KB'}
               size="sm"
               color="bg-[#1D9E75] text-white"
             />

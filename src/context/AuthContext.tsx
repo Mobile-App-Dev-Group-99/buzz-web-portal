@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
-import { login as apiLogin, getMe } from '../services/api'
+import { login as apiLogin, getMe, validateToken } from '../services/api'
 import type { Role } from '../types'
 
 interface AuthUser {
@@ -29,6 +29,12 @@ export function useAuth() {
   return useContext(AuthContext)
 }
 
+function makeInitials(firstName: string, lastName: string): string {
+  const f = firstName?.[0] || ''
+  const l = lastName?.[0] || ''
+  return (f + l).toUpperCase() || '?'
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
@@ -38,7 +44,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const savedUser = localStorage.getItem('user')
     if (token && savedUser) {
       try {
-        setUser(JSON.parse(savedUser))
+        const parsed = JSON.parse(savedUser)
+        if (parsed.firstName) parsed.initials = makeInitials(parsed.firstName, parsed.lastName)
+        setUser(parsed)
       } catch {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
@@ -52,17 +60,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = data.token
     if (!token) throw new Error('No token received')
 
-    let role = (data.role || '').toLowerCase() as Role
-    if (!role || !['admin', 'teacher', 'student', 'parent'].includes(role)) {
-      role = detectRole(email)
+    let role: Role = 'admin'
+    if (data.role) {
+      const r = data.role.toLowerCase()
+      if (['admin', 'teacher', 'student', 'parent'].includes(r)) {
+        role = r as Role
+      }
     }
 
     const userData: AuthUser = {
-      id: 0,
+      id: data.id || 0,
       email: data.email || email,
       role,
-      firstName: email.split('@')[0],
-      lastName: '',
+      firstName: data.firstName || email.split('@')[0],
+      lastName: data.lastName || '',
       schoolId: data.schoolId,
     }
 
@@ -76,8 +87,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const updated: AuthUser = {
           ...userData,
           id: me.id || userData.id,
-          firstName: me.username || me.firstName || userData.firstName,
-          lastName: me.lastName || '',
+          firstName: me.firstName || me.username || userData.firstName,
+          lastName: me.lastName || userData.lastName,
+          role: me.role ? (me.role.toLowerCase() as Role) : userData.role,
         }
         localStorage.setItem('user', JSON.stringify(updated))
         setUser(updated)
@@ -98,11 +110,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   )
-}
-
-function detectRole(email: string): Role {
-  const e = email.toLowerCase()
-  if (e.includes('teacher')) return 'teacher'
-  if (e.includes('parent')) return 'parent'
-  return 'admin'
 }

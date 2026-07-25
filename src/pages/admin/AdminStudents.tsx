@@ -1,20 +1,46 @@
+import { useState, useEffect } from 'react'
 import StatusBadge from '../../components/StatusBadge'
 import Avatar from '../../components/Avatar'
-
-const MOCK_STUDENTS = [
-  { id: 'BZ-2041', name: 'Kofi Mensah', class: 'SHS 2B', level: 'SHS Boarding', biometric: true, status: 'Active' },
-  { id: 'BZ-1823', name: 'Ama Boateng', class: 'JHS 3A', level: 'JHS', biometric: true, status: 'Active' },
-  { id: 'BZ-2187', name: 'Ekow Osei', class: 'SHS 1A', level: 'SHS Day', biometric: false, status: 'Active' },
-  { id: 'BZ-2099', name: 'Akua Asante', class: 'SHS 3C', level: 'SHS Boarding', biometric: true, status: 'On Exeat' },
-]
+import { getAdminStudents } from '../../services/api'
 
 export default function AdminStudents() {
+  const [students, setStudents] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    getAdminStudents()
+      .then(data => {
+        const list = Array.isArray(data) ? data : data?.students || data?.content || []
+        setStudents(list.map((s: any) => ({
+          id: s.studentCode || s.studentId || s.id,
+          name: `${s.firstName || ''} ${s.lastName || ''}`.trim() || 'Unknown',
+          class: s.className || '—',
+          level: s.studentType || s.level || '—',
+          biometric: s.biometricEnrolled || s.biometric || false,
+          status: s.status || 'Active',
+        })))
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  const filtered = students.filter(s =>
+    !search || s.name.toLowerCase().includes(search.toLowerCase()) ||
+    String(s.id).includes(search) ||
+    s.class.toLowerCase().includes(search.toLowerCase())
+  )
+
   return (
     <div>
       <div className="flex gap-2 mb-4">
-        <input placeholder="Search by name, ID, class..." className="border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs w-64 outline-none focus:border-[#1D9E75] bg-white" />
+        <input
+          placeholder="Search by name, ID, class..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs w-64 outline-none focus:border-[#1D9E75] bg-white"
+        />
         <button className="ml-auto bg-[#1D9E75] text-white text-xs font-medium px-3 py-1.5 rounded-lg">+ Add Student</button>
-        <button className="border border-[#D8D5CC] text-xs font-medium px-3 py-1.5 rounded-lg bg-white">Bulk CSV Import</button>
       </div>
       <div className="bg-white rounded-lg border border-[#D8D5CC] overflow-hidden">
         <table className="w-full">
@@ -24,11 +50,17 @@ export default function AdminStudents() {
             ))}
           </tr></thead>
           <tbody>
-            {MOCK_STUDENTS.map(s => (
+            {loading && (
+              <tr><td colSpan={7} className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">Loading students...</td></tr>
+            )}
+            {!loading && filtered.length === 0 && (
+              <tr><td colSpan={7} className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">No students found</td></tr>
+            )}
+            {filtered.map(s => (
               <tr key={s.id} className="border-b border-[#F7F6F2] hover:bg-[#F7F6F2]">
                 <td className="px-4 py-2.5">
                   <div className="flex items-center gap-2">
-                    <Avatar initials={s.name.split(' ').map(n => n[0]).join('')} size="sm" color="bg-[#E1F5EE] text-[#0F6E56]" />
+                    <Avatar initials={(s.name || '').split(' ').map((n: string) => n[0]).join('').slice(0, 2)} size="sm" color="bg-[#E1F5EE] text-[#0F6E56]" />
                     <span className="font-medium text-xs">{s.name}</span>
                   </div>
                 </td>

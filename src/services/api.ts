@@ -1,8 +1,8 @@
 import axios from 'axios'
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'https://buzz-auth-service-xhno.onrender.com'
-const ATTENDANCE_BASE = import.meta.env.VITE_ATTENDANCE_BASE || 'https://buzz-attendance-service-j18d.onrender.com'
-const SAFETY_BASE = import.meta.env.VITE_SAFETY_BASE || 'https://buzz-safety-service-djmq.onrender.com'
+const API_BASE = import.meta.env.VITE_API_BASE || 'https://auth-service-bpwr.onrender.com'
+const ATTENDANCE_BASE = import.meta.env.VITE_ATTENDANCE_BASE || 'https://attendance-service-40dn.onrender.com'
+const SAFETY_BASE = import.meta.env.VITE_SAFETY_BASE || 'https://safety-service-djmq.onrender.com'
 
 export const authApi = axios.create({ baseURL: API_BASE, timeout: 30000 })
 export const attendanceApi = axios.create({ baseURL: ATTENDANCE_BASE, timeout: 30000 })
