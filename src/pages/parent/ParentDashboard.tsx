@@ -1,36 +1,88 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import StatusBadge from '../../components/StatusBadge'
 import Avatar from '../../components/Avatar'
-
-const MOCK_CHILDREN = [
-  { name: 'Kofi Mensah', class: 'SHS 2B', active: true },
-  { name: 'Abena Mensah', class: 'JHS 3A', active: false },
-]
-
-const MOCK_HISTORY = [
-  { date: 'Mon 17 Jun', event: 'Arrived at school', time: '7:24 AM', status: 'present' },
-  { date: 'Fri 14 Jun', event: 'Arrived at school', time: '7:18 AM', status: 'present' },
-  { date: 'Thu 13 Jun', event: 'Arrived late', time: '9:45 AM', status: 'late' },
-  { date: 'Wed 12 Jun', event: 'Arrived at school', time: '7:31 AM', status: 'present' },
-  { date: 'Tue 11 Jun', event: 'Arrived at school', time: '7:22 AM', status: 'present' },
-  { date: 'Mon 10 Jun', event: 'Absent — no scan', time: '', status: 'absent' },
-]
-
-const MOCK_NOTIFICATIONS = [
-  { text: 'Kofi arrived at school — Gate 1 · 7:24 AM', time: 'Today', color: 'bg-[#E1F5EE]' },
-  { text: 'Kofi arrived late — 9:45 AM · 75 mins after bell', time: 'Thu 13 Jun', color: 'bg-[#FAEEDA]' },
-  { text: 'Kofi arrived at school — Gate 1 · 7:18 AM', time: 'Fri 14 Jun', color: 'bg-[#E1F5EE]' },
-]
+import { getParentChildren, getStudentAttendance, getParentNotifications } from '../../services/api'
 
 export default function ParentDashboard() {
+  const [children, setChildren] = useState<any[]>([])
   const [activeChild, setActiveChild] = useState(0)
+  const [history, setHistory] = useState<any[]>([])
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [parentId, setParentId] = useState<number | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getParentChildren()
+      .then(data => {
+        const kids = Array.isArray(data) ? data : data?.children || []
+        setChildren(kids.map((c: any) => ({
+          id: c.id || c.studentId,
+          name: `${c.firstName || ''} ${c.lastName || ''}`.trim() || `Child ${c.id}`,
+          class: c.className || '—',
+        })))
+        const pid = data?.parent?.parentId || data?.parentId
+        if (pid) setParentId(pid)
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    if (children.length > 0 && children[activeChild]?.id) {
+      getStudentAttendance(children[activeChild].id)
+        .then(data => {
+          const list = Array.isArray(data) ? data : data?.records || []
+          setHistory(list.slice(0, 10).map((r: any) => ({
+            date: r.scannedAt ? new Date(r.scannedAt).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : '—',
+            event: r.status === 'LATE' ? 'Arrived late' : r.status === 'ABSENT' ? 'Absent — no scan' : 'Arrived at school',
+            time: r.scannedAt ? new Date(r.scannedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
+            status: (r.status || 'present').toLowerCase(),
+            gate: r.gate || '',
+          })))
+        })
+        .catch(() => {})
+    }
+  }, [activeChild, children])
+
+  useEffect(() => {
+    if (parentId) {
+      getParentNotifications(parentId)
+        .then(data => {
+          const list = Array.isArray(data) ? data : data?.notifications || []
+          setNotifications(list.slice(0, 5).map((n: any) => ({
+            text: n.message || n.text || 'Notification',
+            time: n.createdAt ? new Date(n.createdAt).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : '',
+            color: n.type === 'WARNING' ? 'bg-[#FAEEDA]' : 'bg-[#E1F5EE]',
+          })))
+        })
+        .catch(() => {})
+    }
+  }, [parentId])
+
+  const child = children[activeChild]
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-xs text-[#5F5E5A]">Loading...</div>
+      </div>
+    )
+  }
+
+  if (children.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-xs text-[#5F5E5A]">No children linked to your account</div>
+      </div>
+    )
+  }
 
   return (
     <div>
       <div className="flex gap-3 mb-6">
-        {MOCK_CHILDREN.map((child, i) => (
+        {children.map((c, i) => (
           <button
-            key={child.name}
+            key={c.id}
             onClick={() => setActiveChild(i)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium border transition-all ${
               i === activeChild
@@ -39,11 +91,11 @@ export default function ParentDashboard() {
             }`}
           >
             <Avatar
-              initials={child.name.split(' ').map(n => n[0]).join('')}
+              initials={(c.name || '').split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
               size="sm"
               color={i === activeChild ? 'bg-white/20 text-white' : 'bg-[#F7F6F2] text-[#5F5E5A]'}
             />
-            {child.name} · {child.class}
+            {c.name} · {c.class}
           </button>
         ))}
       </div>
@@ -51,27 +103,30 @@ export default function ParentDashboard() {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-lg border border-[#D8D5CC] p-4">
           <div className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-2">Attendance Rate</div>
-          <div className="text-3xl font-bold text-[#1a1a18]">94%</div>
+          <div className="text-3xl font-bold text-[#1a1a18]">
+            {history.length > 0 ? `${Math.round(history.filter(h => h.status !== 'absent').length / Math.max(history.length, 1) * 100)}%` : '—'}
+          </div>
           <div className="text-xs text-[#5F5E5A] mt-1">This term</div>
-          <div className="mt-2 inline-block bg-[#E1F5EE] text-[#0F6E56] text-[10px] font-semibold px-2 py-0.5 rounded-md">Excellent</div>
         </div>
         <div className="bg-white rounded-lg border border-[#D8D5CC] p-4">
-          <div className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-2">Current Streak</div>
-          <div className="text-3xl font-bold text-[#1a1a18]">12 days</div>
-          <div className="text-xs text-[#5F5E5A] mt-1">On time</div>
-          <div className="mt-2 inline-block bg-[#E1F5EE] text-[#0F6E56] text-[10px] font-semibold px-2 py-0.5 rounded-md">Personal best</div>
+          <div className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-2">Total Scans</div>
+          <div className="text-3xl font-bold text-[#1a1a18]">{history.length}</div>
+          <div className="text-xs text-[#5F5E5A] mt-1">This period</div>
         </div>
         <div className="bg-white rounded-lg border border-[#D8D5CC] p-4">
           <div className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-2">Today's Status</div>
-          <div className="text-3xl font-bold text-[#0F6E56]">✓</div>
-          <div className="text-xs text-[#5F5E5A] mt-1">Arrived 7:24 AM · Gate 1</div>
-          <div className="mt-2 inline-block bg-[#E1F5EE] text-[#0F6E56] text-[10px] font-semibold px-2 py-0.5 rounded-md">On time</div>
+          <div className="text-3xl font-bold text-[#0F6E56]">
+            {history.length > 0 && history[0]?.status === 'present' ? '✓' : history[0]?.status === 'late' ? 'L' : '—'}
+          </div>
+          <div className="text-xs text-[#5F5E5A] mt-1">
+            {history[0]?.time ? `${history[0].time} · ${history[0].gate || ''}` : 'No scan yet'}
+          </div>
         </div>
       </div>
 
       <div className="bg-white rounded-lg border border-[#D8D5CC] overflow-hidden mb-4">
         <div className="px-4 py-3 border-b border-[#D8D5CC]">
-          <span className="font-semibold text-xs">Attendance History — {MOCK_CHILDREN[activeChild].name}</span>
+          <span className="font-semibold text-xs">Attendance History — {child?.name || '—'}</span>
         </div>
         <table className="w-full">
           <thead><tr className="bg-[#F7F6F2] border-b border-[#D8D5CC]">
@@ -80,7 +135,10 @@ export default function ParentDashboard() {
             ))}
           </tr></thead>
           <tbody>
-            {MOCK_HISTORY.map((item, i) => (
+            {history.length === 0 && (
+              <tr><td colSpan={4} className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">No attendance records</td></tr>
+            )}
+            {history.map((item, i) => (
               <tr key={i} className="border-b border-[#F7F6F2] hover:bg-[#F7F6F2]">
                 <td className="px-4 py-2.5 text-xs font-medium text-[#5F5E5A]">{item.date}</td>
                 <td className="px-4 py-2.5 text-xs text-[#5F5E5A]">{item.event}</td>
@@ -96,10 +154,13 @@ export default function ParentDashboard() {
         <div className="px-4 py-3 border-b border-[#D8D5CC]">
           <span className="font-semibold text-xs">Recent Notifications</span>
         </div>
-        {MOCK_NOTIFICATIONS.map((n, i) => (
+        {notifications.length === 0 && (
+          <div className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">No notifications</div>
+        )}
+        {notifications.map((n, i) => (
           <div key={i} className="flex items-center gap-3 px-4 py-3 border-b border-[#F7F6F2] hover:bg-[#F7F6F2]">
             <div className={`w-8 h-8 ${n.color} rounded-lg flex items-center justify-center`}>
-              <span className="text-xs">✓</span>
+              <span className="text-xs">!</span>
             </div>
             <div className="flex-1">
               <div className="text-xs text-[#5F5E5A]">{n.text}</div>

@@ -1,23 +1,57 @@
+import { useState, useEffect } from 'react'
 import StatusBadge from '../../components/StatusBadge'
-
-const MOCK_ATTENDANCE = [
-  { id: 1, name: 'Kofi Mensah', class: 'SHS 2B', gate: 'Gate 1', status: 'arrived', time: '7:24 AM', notified: true },
-  { id: 2, name: 'Ama Boateng', class: 'JHS 3A', gate: 'Gate 1', status: 'late', time: '9:45 AM', notified: true },
-  { id: 3, name: 'Ekow Osei', class: 'SHS 1A', gate: 'Gate 2', status: 'arrived', time: '7:31 AM', notified: true },
-  { id: 4, name: 'Akua Asante', class: 'SHS 3C', gate: 'Gate 1', status: 'arrived', time: '7:18 AM', notified: true },
-  { id: 5, name: 'Yaw Darko', class: 'JHS 2B', gate: 'Gate 2', status: 'late', time: '8:12 AM', notified: true },
-  { id: 6, name: 'Fiifi Owusu', class: 'SHS 2A', gate: 'Gate 1', status: 'departed', time: '11:35 AM', notified: true },
-]
+import { getLiveFeed } from '../../services/api'
 
 export default function AdminAttendance() {
+  const [records, setRecords] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [classFilter, setClassFilter] = useState('All')
+
+  useEffect(() => {
+    getLiveFeed()
+      .then(data => {
+        const list = Array.isArray(data) ? data : data?.records || data?.content || []
+        setRecords(list.map((r: any) => ({
+          id: r.id || r.studentId,
+          name: r.studentName || r.name || `Student ${r.studentId}`,
+          class: r.className || '—',
+          gate: r.gate || 'Gate 1',
+          status: (r.status || 'arrived').toLowerCase(),
+          time: r.scannedAt ? new Date(r.scannedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—',
+          notified: r.parentNotified !== false,
+        })))
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  const classes = ['All', ...new Set(records.map(r => r.class).filter(Boolean))]
+
+  const filtered = records.filter(r => {
+    const matchSearch = !search ||
+      r.name.toLowerCase().includes(search.toLowerCase()) ||
+      r.class.toLowerCase().includes(search.toLowerCase())
+    const matchClass = classFilter === 'All' || r.class === classFilter
+    return matchSearch && matchClass
+  })
+
   return (
     <div>
       <div className="flex gap-2 mb-4">
-        <input placeholder="Search student or class..." className="border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs w-64 outline-none focus:border-[#1D9E75] bg-white" />
-        <select className="border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white">
-          <option>All Classes</option><option>JHS 1A</option><option>SHS 2B</option>
+        <input
+          placeholder="Search student or class..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs w-64 outline-none focus:border-[#1D9E75] bg-white"
+        />
+        <select
+          value={classFilter}
+          onChange={e => setClassFilter(e.target.value)}
+          className="border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white"
+        >
+          {classes.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-        <button className="ml-auto bg-[#1D9E75] text-white text-xs font-medium px-3 py-1.5 rounded-lg">Export</button>
       </div>
       <div className="bg-white rounded-lg border border-[#D8D5CC] overflow-hidden">
         <table className="w-full">
@@ -27,7 +61,13 @@ export default function AdminAttendance() {
             ))}
           </tr></thead>
           <tbody>
-            {MOCK_ATTENDANCE.map(item => (
+            {loading && (
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">Loading attendance...</td></tr>
+            )}
+            {!loading && filtered.length === 0 && (
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">No attendance records today</td></tr>
+            )}
+            {filtered.map(item => (
               <tr key={item.id} className="border-b border-[#F7F6F2] hover:bg-[#F7F6F2]">
                 <td className="px-4 py-2.5 font-medium text-xs">{item.name}</td>
                 <td className="px-4 py-2.5 text-xs text-[#5F5E5A]">{item.class}</td>

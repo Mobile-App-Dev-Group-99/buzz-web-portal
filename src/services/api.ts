@@ -158,3 +158,18 @@ export async function markManualAttendance(data: {
   const res = await attendanceApi.post('/api/attendance/manual', data)
   return res.data
 }
+
+export async function getParentChildren() {
+  const res = await attendanceApi.get('/api/parent/me/children')
+  return res.data
+}
+
+export async function getStudentAttendance(studentId: number) {
+  const res = await attendanceApi.get(`/api/attendance/student/${studentId}`)
+  return res.data
+}
+
+export async function getStudentsByClass(className: string) {
+  const res = await attendanceApi.get(`/api/admin/students/class/${className}`)
+  return res.data
+}
