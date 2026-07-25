@@ -21,7 +21,7 @@ export default function AdminStudents() {
           status: s.status || 'Active',
         })))
       })
-      .catch(() => {})
+      .catch((err) => console.warn('API error:', err))
       .finally(() => setLoading(false))
   }, [])
 

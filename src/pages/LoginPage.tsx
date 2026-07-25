@@ -15,11 +15,10 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
     try {
-      await login(email, password)
-      const role = email.toLowerCase().includes('teacher') ? 'teacher'
-        : email.toLowerCase().includes('parent') ? 'parent'
-        : 'admin'
-      navigate(role === 'admin' ? '/admin' : role === 'teacher' ? '/teacher' : '/parent')
+      const data = await login(email, password)
+      // Use the actual role from the API response, not email-based inference
+      const role = data?.role?.toLowerCase() || 'admin'
+      navigate(role === 'admin' ? '/admin' : role === 'teacher' ? '/teacher' : role === 'parent' ? '/parent' : '/login')
     } catch (err: any) {
       const msg = err?.response?.data?.error || err?.response?.data?.message || 'Login failed. Check your credentials.'
       setError(msg)

@@ -20,7 +20,7 @@ export default function AdminStaff() {
           lastLogin: s.lastLogin ? new Date(s.lastLogin).toLocaleString([], { hour: '2-digit', minute: '2-digit' }) : '—',
         })))
       })
-      .catch(() => {})
+      .catch((err) => console.warn('API error:', err))
       .finally(() => setLoading(false))
   }, [])
 

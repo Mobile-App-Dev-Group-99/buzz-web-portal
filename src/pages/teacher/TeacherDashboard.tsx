@@ -21,7 +21,7 @@ export default function TeacherDashboard() {
           time: s.scannedAt ? new Date(s.scannedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
         })))
       })
-      .catch(() => {})
+      .catch((err) => console.warn('API error:', err))
       .finally(() => setLoading(false))
   }, [])
 
@@ -40,7 +40,7 @@ export default function TeacherDashboard() {
       setStudents(prev => prev.map(s =>
         s.id === studentId ? { ...s, status: 'present', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) } : s
       ))
-    } catch {}
+    } catch (err) { console.warn('API error:', err) }
   }
 
   return (

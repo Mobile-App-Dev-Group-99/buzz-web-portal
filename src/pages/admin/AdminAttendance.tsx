@@ -22,7 +22,7 @@ export default function AdminAttendance() {
           notified: r.parentNotified !== false,
         })))
       })
-      .catch(() => {})
+      .catch((err) => console.warn('API error:', err))
       .finally(() => setLoading(false))
   }, [])
 

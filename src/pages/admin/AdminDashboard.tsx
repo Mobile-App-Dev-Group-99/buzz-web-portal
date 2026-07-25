@@ -62,7 +62,9 @@ export default function AdminDashboard() {
         if (weekly.status === 'fulfilled' && Array.isArray(weekly.value)) {
           setWeeklyRates(weekly.value)
         }
-      } catch {}
+      } catch (err) {
+        console.warn('Failed to load dashboard data:', err)
+      }
       if (mounted) setLoading(false)
     }
     load()

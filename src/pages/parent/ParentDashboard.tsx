@@ -23,7 +23,7 @@ export default function ParentDashboard() {
         const pid = data?.parent?.parentId || data?.parentId
         if (pid) setParentId(pid)
       })
-      .catch(() => {})
+      .catch((err) => console.warn('API error:', err))
       .finally(() => setLoading(false))
   }, [])
 
@@ -40,7 +40,7 @@ export default function ParentDashboard() {
             gate: r.gate || '',
           })))
         })
-        .catch(() => {})
+        .catch((err) => console.warn('API error:', err))
     }
   }, [activeChild, children])
 
@@ -55,7 +55,7 @@ export default function ParentDashboard() {
             color: n.type === 'WARNING' ? 'bg-[#FAEEDA]' : 'bg-[#E1F5EE]',
           })))
         })
-        .catch(() => {})
+        .catch((err) => console.warn('API error:', err))
     }
   }, [parentId])
 

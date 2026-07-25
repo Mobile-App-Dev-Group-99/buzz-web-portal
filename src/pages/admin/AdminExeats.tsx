@@ -21,7 +21,7 @@ export default function AdminExeats() {
           status: e.status || 'PENDING',
         })))
       })
-      .catch(() => {})
+      .catch((err) => console.warn('API error:', err))
       .finally(() => setLoading(false))
   }, [])
 

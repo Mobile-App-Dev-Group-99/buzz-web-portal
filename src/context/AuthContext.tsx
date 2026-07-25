@@ -13,7 +13,7 @@ interface AuthUser {
 
 interface AuthContextType {
   user: AuthUser | null
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string) => Promise<any>
   logout: () => void
   loading: boolean
 }
@@ -41,18 +41,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const token = localStorage.getItem('token')
-    const savedUser = localStorage.getItem('user')
-    if (token && savedUser) {
-      try {
-        const parsed = JSON.parse(savedUser)
-        if (parsed.firstName) parsed.initials = makeInitials(parsed.firstName, parsed.lastName)
-        setUser(parsed)
-      } catch {
+    if (!token) {
+      setLoading(false)
+      return
+    }
+
+    // Always validate against server — never trust localStorage role
+    validateToken()
+      .then((data) => {
+        if (data && data.email && data.role) {
+          const role = data.role.toLowerCase() as Role
+          const userData: AuthUser = {
+            id: data.id || 0,
+            email: data.email,
+            role,
+            firstName: data.firstName || data.email.split('@')[0],
+            lastName: data.lastName || '',
+            schoolId: data.schoolId,
+          }
+          userData.initials = makeInitials(userData.firstName, userData.lastName)
+          localStorage.setItem('user', JSON.stringify(userData))
+          setUser(userData)
+        } else {
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+        }
+      })
+      .catch(() => {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
-      }
-    }
-    setLoading(false)
+      })
+      .finally(() => setLoading(false))
   }, [])
 
   const loginFn = async (email: string, password: string) => {
@@ -91,12 +110,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           lastName: me.lastName || userData.lastName,
           role: me.role ? (me.role.toLowerCase() as Role) : userData.role,
         }
+        updated.initials = makeInitials(updated.firstName, updated.lastName)
         localStorage.setItem('user', JSON.stringify(updated))
         setUser(updated)
+        return { ...updated, token }
       }
     } catch {
       // /me might fail for some roles, keep what we have
     }
+    return data
   }
 
   const logout = () => {

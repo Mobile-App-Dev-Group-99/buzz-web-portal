@@ -33,7 +33,7 @@ export default function AdminReports() {
           const avg = weekly.value.reduce((sum: number, d: any) => sum + (d.percentage || d.h || 0), 0) / weekly.value.length
           setStats(prev => ({ ...prev, avgArrival: `${Math.round(avg)}% avg` }))
         }
-      } catch {}
+      } catch (err) { console.warn('API error:', err) }
     }
     load()
   }, [])
