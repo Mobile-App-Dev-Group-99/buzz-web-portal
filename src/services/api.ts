@@ -188,6 +188,21 @@ export async function getParentNotifications(parentId: number) {
   return res.data
 }
 
+export async function markNotificationRead(id: number) {
+  const res = await safetyApi.put(`/api/notification/${id}/read`)
+  return res.data
+}
+
+export async function markAllNotificationsRead(parentId: number) {
+  const res = await safetyApi.put(`/api/notification/parent/${parentId}/read-all`)
+  return res.data
+}
+
+export async function getUnreadNotificationCount(parentId: number) {
+  const res = await safetyApi.get(`/api/notification/parent/${parentId}/unread-count`)
+  return res.data
+}
+
 export async function markManualAttendance(data: {
   studentId: number; status: string; note?: string;
 }) {

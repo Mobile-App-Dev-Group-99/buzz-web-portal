@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import StatusBadge from '../../components/StatusBadge'
 import Avatar from '../../components/Avatar'
-import { getParentChildren, getStudentAttendance, getParentNotifications, getStudentExeats } from '../../services/api'
+import { getParentChildren, getStudentAttendance, getParentNotifications, getStudentExeats, markNotificationRead } from '../../services/api'
 
 export default function ParentDashboard() {
   const [children, setChildren] = useState<any[]>([])
@@ -61,15 +61,21 @@ export default function ParentDashboard() {
       getParentNotifications(parentId)
         .then(data => {
           const list = Array.isArray(data) ? data : data?.notifications || []
-          setNotifications(list.slice(0, 5).map((n: any) => {
+          setNotifications(list.slice(0, 10).map((n: any) => {
+            const t = (n.type || '').toUpperCase()
             const msg = n.message || ''
-            const isLate = /late/i.test(msg)
-            const isDeparted = /left|departed|left school/i.test(msg)
+            let color = 'bg-[#E1F5EE]', icon = '✓'
+            if (t === 'LATE' || (!t && /late/i.test(msg))) { color = 'bg-[#FAEEDA]'; icon = '!' }
+            else if (t === 'DEPARTED' || (!t && /left|departed/i.test(msg))) { color = 'bg-[#E8EDF5]'; icon = '↩' }
+            else if (t === 'ABSENT' || (!t && /absent/i.test(msg))) { color = 'bg-[#FDEAEA]'; icon = '✕' }
+            else if (t?.startsWith('EXEAT')) { color = 'bg-[#E8EDF5]'; icon = '📋' }
             return {
+              id: n.id,
               text: msg || 'Notification',
               time: n.sentAt ? new Date(n.sentAt).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : '',
-              color: isLate ? 'bg-[#FAEEDA]' : isDeparted ? 'bg-[#E8EDF5]' : 'bg-[#E1F5EE]',
-              icon: isLate ? '!' : isDeparted ? '↩' : '✓',
+              color,
+              icon,
+              isRead: n.isRead,
             }
           }))
         })
@@ -209,7 +215,16 @@ export default function ParentDashboard() {
           <div className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">No notifications</div>
         )}
         {notifications.map((n, i) => (
-          <div key={i} className="flex items-center gap-3 px-4 py-3 border-b border-[#F7F6F2] hover:bg-[#F7F6F2]">
+          <div
+            key={n.id || i}
+            className={`flex items-center gap-3 px-4 py-3 border-b border-[#F7F6F2] hover:bg-[#F7F6F2] cursor-pointer ${n.isRead ? 'opacity-60' : ''}`}
+            onClick={() => {
+              if (!n.isRead && n.id) {
+                markNotificationRead(n.id)
+                setNotifications(prev => prev.map((x: any) => x.id === n.id ? { ...x, isRead: true } : x))
+              }
+            }}
+          >
             <div className={`w-8 h-8 ${n.color} rounded-lg flex items-center justify-center`}>
               <span className="text-xs">{n.icon}</span>
             </div>
