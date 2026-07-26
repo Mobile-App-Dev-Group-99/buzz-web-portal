@@ -128,7 +128,7 @@ export async function deleteTeacher(id: number) {
   return res.data
 }
 
-export async function createExeat(data: { studentId: number; reason: string; startDate: string; endDate: string }) {
+export async function createExeat(data: { studentId: number; reason: string; expectedReturn?: string }) {
   const res = await safetyApi.post('/api/exeat/create', data)
   return res.data
 }

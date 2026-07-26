@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import StatusBadge from '../../components/StatusBadge'
 import { getSchoolExeats, createExeat, updateExeatStatus } from '../../services/api'
 
-const emptyForm = { studentId: '', reason: '', startDate: '', endDate: '' }
+const emptyForm = { studentId: '', reason: '', notes: '', expectedReturn: '' }
 
 export default function AdminExeats() {
   const [showForm, setShowForm] = useState(false)
@@ -20,14 +20,13 @@ export default function AdminExeats() {
         setExeats(list.map((e: any) => ({
           id: e.id || e.exeatId,
           name: e.studentName || `${e.firstName || ''} ${e.lastName || ''}`.trim() || `Student ${e.studentId}`,
-          class: e.className || '—',
+          class: e.studentClass || e.className || '—',
           reason: e.reason || '—',
-          departed: e.departedAt ? new Date(e.departedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—',
+          departed: e.createdAt ? new Date(e.createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—',
           expected: e.expectedReturn ? new Date(e.expectedReturn).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—',
           status: e.status || 'PENDING',
           studentId: e.studentId,
-          startDate: e.startDate || e.departedAt,
-          endDate: e.endDate || e.expectedReturn,
+          approvedByName: e.approvedByName || '—',
         })))
       })
       .catch((err) => console.warn('API error:', err))
@@ -37,7 +36,7 @@ export default function AdminExeats() {
   useEffect(() => { loadExeats() }, [])
 
   const onCampus = exeats.filter(e => e.status === 'RETURNED' || e.status === 'PENDING').length
-  const onExeat = exeats.filter(e => e.status === 'APPROVED' || e.status === 'ON_EXEAT').length
+  const onExeat = exeats.filter(e => e.status === 'APPROVED').length
   const overdue = exeats.filter(e => e.status === 'OVERDUE').length
 
   const handleSubmit = async () => {
@@ -46,8 +45,7 @@ export default function AdminExeats() {
       await createExeat({
         studentId: Number(form.studentId),
         reason: form.reason,
-        startDate: form.startDate,
-        endDate: form.endDate,
+        expectedReturn: form.expectedReturn || undefined,
       })
       setShowForm(false)
       setForm(emptyForm)
@@ -103,16 +101,16 @@ export default function AdminExeats() {
               <input value={form.reason} onChange={e => setForm({ ...form, reason: e.target.value })} placeholder="Reason" className="w-full border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white focus:border-[#1D9E75]" />
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-1 block">Start Date</label>
-              <input type="datetime-local" value={form.startDate} onChange={e => setForm({ ...form, startDate: e.target.value })} className="w-full border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white focus:border-[#1D9E75]" />
+              <label className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-1 block">Expected Return</label>
+              <input type="datetime-local" value={form.expectedReturn} onChange={e => setForm({ ...form, expectedReturn: e.target.value })} className="w-full border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white focus:border-[#1D9E75]" />
             </div>
             <div>
-              <label className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-1 block">End Date</label>
-              <input type="datetime-local" value={form.endDate} onChange={e => setForm({ ...form, endDate: e.target.value })} className="w-full border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white focus:border-[#1D9E75]" />
+              <label className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-1 block">Notes (optional)</label>
+              <input value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })} placeholder="Additional notes" className="w-full border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white focus:border-[#1D9E75]" />
             </div>
           </div>
           <div className="mt-3 flex justify-end">
-            <button onClick={handleSubmit} disabled={saving || !form.studentId || !form.reason || !form.startDate || !form.endDate} className="bg-[#1D9E75] text-white text-xs font-semibold px-4 py-2 rounded-lg disabled:opacity-50">
+            <button onClick={handleSubmit} disabled={saving || !form.studentId || !form.reason} className="bg-[#1D9E75] text-white text-xs font-semibold px-4 py-2 rounded-lg disabled:opacity-50">
               {saving ? 'Submitting...' : 'Submit Exeat'}
             </button>
           </div>
