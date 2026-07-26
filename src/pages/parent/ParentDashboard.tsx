@@ -49,11 +49,17 @@ export default function ParentDashboard() {
       getParentNotifications(parentId)
         .then(data => {
           const list = Array.isArray(data) ? data : data?.notifications || []
-          setNotifications(list.slice(0, 5).map((n: any) => ({
-            text: n.message || n.text || 'Notification',
-            time: n.createdAt ? new Date(n.createdAt).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : '',
-            color: n.type === 'WARNING' ? 'bg-[#FAEEDA]' : 'bg-[#E1F5EE]',
-          })))
+          setNotifications(list.slice(0, 5).map((n: any) => {
+            const msg = n.message || ''
+            const isLate = /late/i.test(msg)
+            const isDeparted = /left|departed|left school/i.test(msg)
+            return {
+              text: msg || 'Notification',
+              time: n.sentAt ? new Date(n.sentAt).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : '',
+              color: isLate ? 'bg-[#FAEEDA]' : isDeparted ? 'bg-[#E8EDF5]' : 'bg-[#E1F5EE]',
+              icon: isLate ? '!' : isDeparted ? '↩' : '✓',
+            }
+          }))
         })
         .catch((err) => console.warn('API error:', err))
     }
@@ -160,7 +166,7 @@ export default function ParentDashboard() {
         {notifications.map((n, i) => (
           <div key={i} className="flex items-center gap-3 px-4 py-3 border-b border-[#F7F6F2] hover:bg-[#F7F6F2]">
             <div className={`w-8 h-8 ${n.color} rounded-lg flex items-center justify-center`}>
-              <span className="text-xs">!</span>
+              <span className="text-xs">{n.icon}</span>
             </div>
             <div className="flex-1">
               <div className="text-xs text-[#5F5E5A]">{n.text}</div>

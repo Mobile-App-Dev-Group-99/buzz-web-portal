@@ -73,11 +73,11 @@ export interface Exeat {
 
 export interface Notification {
   id: number
-  title: string
+  parentId: number
+  schoolId: number
   message: string
-  type: 'arrival' | 'late' | 'absent' | 'exeat' | 'alert'
-  sentAt: string
   isRead: boolean
+  sentAt: string
 }
 
 export interface DashboardStats {
