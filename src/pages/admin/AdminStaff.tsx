@@ -18,6 +18,7 @@ export default function AdminStaff() {
           name: `${s.firstName || ''} ${s.lastName || ''}`.trim() || s.username || `Staff ${s.id}`,
           role: s.role || 'TEACHER',
           email: s.email || '—',
+          className: s.className || null,
           lastLogin: s.lastLogin ? new Date(s.lastLogin).toLocaleString([], { hour: '2-digit', minute: '2-digit' }) : '—',
         })))
       })

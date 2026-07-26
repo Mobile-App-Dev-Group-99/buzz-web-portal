@@ -156,6 +156,11 @@ export async function getTeacherClass() {
   return res.data
 }
 
+export async function getTeacherRoster(className: string) {
+  const res = await attendanceApi.get(`/api/attendance/class/${encodeURIComponent(className)}/roster`)
+  return res.data
+}
+
 export async function getTeacherExeats() {
   const res = await attendanceApi.get('/api/teacher/exeats')
   return res.data
