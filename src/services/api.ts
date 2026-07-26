@@ -209,3 +209,8 @@ export async function getStudentsByClass(className: string) {
   const res = await attendanceApi.get(`/api/admin/students/class/${className}`)
   return res.data
 }
+
+export async function getStudentExeats(studentId: number) {
+  const res = await safetyApi.get(`/api/exeat/student/${studentId}`)
+  return res.data
+}

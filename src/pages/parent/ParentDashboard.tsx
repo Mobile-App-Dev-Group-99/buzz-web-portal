@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
 import StatusBadge from '../../components/StatusBadge'
 import Avatar from '../../components/Avatar'
-import { getParentChildren, getStudentAttendance, getParentNotifications } from '../../services/api'
+import { getParentChildren, getStudentAttendance, getParentNotifications, getStudentExeats } from '../../services/api'
 
 export default function ParentDashboard() {
   const [children, setChildren] = useState<any[]>([])
   const [activeChild, setActiveChild] = useState(0)
   const [history, setHistory] = useState<any[]>([])
   const [notifications, setNotifications] = useState<any[]>([])
+  const [exeats, setExeats] = useState<any[]>([])
   const [parentId, setParentId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -39,6 +40,17 @@ export default function ParentDashboard() {
             status: (r.status || 'present').toLowerCase(),
             gate: r.gate || '',
           })))
+        })
+        .catch((err) => console.warn('API error:', err))
+    }
+  }, [activeChild, children])
+
+  useEffect(() => {
+    if (children.length > 0 && children[activeChild]?.id) {
+      getStudentExeats(children[activeChild].id)
+        .then(data => {
+          const list = Array.isArray(data) ? data : []
+          setExeats(list.slice(0, 10))
         })
         .catch((err) => console.warn('API error:', err))
     }
@@ -154,6 +166,39 @@ export default function ParentDashboard() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="bg-white rounded-lg border border-[#D8D5CC] overflow-hidden mb-4">
+        <div className="px-4 py-3 border-b border-[#D8D5CC]">
+          <span className="font-semibold text-xs">Exeat Requests — {child?.name || '—'}</span>
+        </div>
+        {exeats.length === 0 && (
+          <div className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">No exeat requests</div>
+        )}
+        {exeats.map((ex: any) => {
+          const statusColors: Record<string, string> = {
+            PENDING: 'bg-[#FAEEDA] text-[#D4850A]',
+            APPROVED: 'bg-[#E1F5EE] text-[#0F6E56]',
+            DENIED: 'bg-[#FDEAEA] text-[#C0392B]',
+            RETURNED: 'bg-[#E1F5EE] text-[#0F6E56]',
+            OVERDUE: 'bg-[#FDEAEA] text-[#C0392B]',
+          }
+          const statusClass = statusColors[ex.status] || 'bg-[#F7F6F2] text-[#5F5E5A]'
+          return (
+            <div key={ex.id} className="flex items-center gap-3 px-4 py-3 border-b border-[#F7F6F2] hover:bg-[#F7F6F2]">
+              <div className="flex-1">
+                <div className="text-xs font-medium text-[#1a1a18]">{ex.reason || 'Exeat'}</div>
+                <div className="text-[10px] text-[#5F5E5A] mt-0.5">
+                  {ex.createdAt ? new Date(ex.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''}
+                  {ex.approvedByName && <span className="ml-2">· {ex.status === 'DENIED' ? 'Denied' : 'Approved'} by {ex.approvedByName}</span>}
+                </div>
+              </div>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${statusClass}`}>
+                {ex.status}
+              </span>
+            </div>
+          )
+        })}
       </div>
 
       <div className="bg-white rounded-lg border border-[#D8D5CC] overflow-hidden">
