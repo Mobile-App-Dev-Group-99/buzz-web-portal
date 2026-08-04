@@ -14,11 +14,6 @@ function barColor(pct: number) {
   return 'bg-cat-negative'
 }
 
-function alertDot(type: string) {
-  const map: Record<string, string> = { red: 'bg-cat-negative', amber: 'bg-cat-warning', green: 'bg-cat-positive' }
-  return `w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${map[type] || 'bg-aurora-text-secondary'}`
-}
-
 export default function AdminDashboard() {
   const [stats, setStats] = useState({ present: 0, late: 0, absent: 0, onExeat: 0 })
   const [gateFeed, setGateFeed] = useState<any[]>([])

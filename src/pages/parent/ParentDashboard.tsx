@@ -5,8 +5,7 @@ import { getParentChildren, getStudentAttendance, getParentNotifications, getStu
 import AuroraBackground from '../../components/AuroraBackground'
 import GlassCard from '../../components/GlassCard'
 import StatTile from '../../components/StatTile'
-import CategoryBadge from '../../components/CategoryBadge'
-import { TrendingUp, ScanBarcode, CheckCircle, CalendarDays, Bell, FileText, Clock, AlertTriangle, Check, X, CornerDownLeft } from 'lucide-react'
+import { TrendingUp, ScanBarcode, CheckCircle, CalendarDays, Bell, FileText, AlertTriangle, Check, X, CornerDownLeft } from 'lucide-react'
 
 export default function ParentDashboard() {
   const [children, setChildren] = useState<any[]>([])

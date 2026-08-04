@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react'
-import { Search, Filter, CheckCircle } from 'lucide-react'
+import { Search, Filter } from 'lucide-react'
 import StatusBadge from '../../components/StatusBadge'
 import GlassCard from '../../components/GlassCard'
 import AuroraBackground from '../../components/AuroraBackground'
-import AnimatedIcon from '../../components/AnimatedIcon'
 import { getLiveFeed } from '../../services/api'
 
 export default function AdminAttendance() {

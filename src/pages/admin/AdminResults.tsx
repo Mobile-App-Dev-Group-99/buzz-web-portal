@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FileText, Inbox } from 'lucide-react'
+import { FileText } from 'lucide-react'
 import GlassCard from '../../components/GlassCard'
 import AuroraBackground from '../../components/AuroraBackground'
 import AnimatedIcon from '../../components/AnimatedIcon'

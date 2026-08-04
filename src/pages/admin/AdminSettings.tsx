@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { Check } from 'lucide-react'
 import GlassCard from '../../components/GlassCard'
 import AuroraBackground from '../../components/AuroraBackground'
-import AnimatedIcon from '../../components/AnimatedIcon'
 
 export default function AdminSettings() {
   const [saved, setSaved] = useState(false)

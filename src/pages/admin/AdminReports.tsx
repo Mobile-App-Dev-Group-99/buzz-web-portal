@@ -42,7 +42,7 @@ export default function AdminReports() {
     load()
   }, [])
 
-  function handleExport(format: string) {
+  function handleExport() {
     setGenerating(true)
     setTimeout(() => setGenerating(false), 1500)
   }
@@ -80,11 +80,11 @@ export default function AdminReports() {
             </div>
             <div className="flex items-end">
               <div className="flex gap-2 w-full">
-                <button onClick={() => handleExport('pdf')} disabled={generating} className="btn-primary flex-1 text-xs font-semibold py-2 disabled:opacity-50 flex items-center justify-center gap-1.5">
+                <button onClick={handleExport} disabled={generating} className="btn-primary flex-1 text-xs font-semibold py-2 disabled:opacity-50 flex items-center justify-center gap-1.5">
                   <FileDown size={14} />
                   {generating ? 'Generating...' : 'Export PDF'}
                 </button>
-                <button onClick={() => handleExport('excel')} disabled={generating} className="btn-secondary flex-1 text-xs font-semibold py-2 disabled:opacity-50 flex items-center justify-center gap-1.5">
+                <button onClick={handleExport} disabled={generating} className="btn-secondary flex-1 text-xs font-semibold py-2 disabled:opacity-50 flex items-center justify-center gap-1.5">
                   <Table size={14} />
                   Export Excel
                 </button>
