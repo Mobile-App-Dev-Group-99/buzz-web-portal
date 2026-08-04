@@ -1,37 +1,35 @@
+import CategoryBadge from './CategoryBadge'
+
 interface StatusBadgeProps {
   status: string
   size?: 'sm' | 'md'
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  arrived: 'bg-emerald-100 text-[#0F6E56]',
-  late: 'bg-amber-100 text-[#854F0B]',
-  departed: 'bg-sky-100 text-[#0C447C]',
-  absent: 'bg-red-100 text-[#791F1F]',
-  present: 'bg-emerald-100 text-[#0F6E56]',
-  active: 'bg-emerald-100 text-[#0F6E56]',
-  'on exeat': 'bg-sky-100 text-[#0C447C]',
-  on_exeat: 'bg-sky-100 text-[#0C447C]',
-  overdue: 'bg-red-100 text-[#791F1F]',
-  returned: 'bg-emerald-100 text-[#0F6E56]',
-  pending: 'bg-amber-100 text-[#854F0B]',
-  approved: 'bg-emerald-100 text-[#0F6E56]',
-  denied: 'bg-red-100 text-[#791F1F]',
-  cancelled: 'bg-gray-100 text-[#5F5E5A]',
-  unread: 'bg-gray-100 text-[#5F5E5A]',
-  read: 'bg-emerald-100 text-[#0F6E56]',
+const STATUS_CATEGORY: Record<string, 'positive' | 'warning' | 'negative' | 'info'> = {
+  arrived: 'positive',
+  late: 'warning',
+  departed: 'info',
+  absent: 'negative',
+  present: 'positive',
+  active: 'positive',
+  'on exeat': 'info',
+  on_exeat: 'info',
+  overdue: 'negative',
+  returned: 'positive',
+  pending: 'warning',
+  approved: 'positive',
+  denied: 'negative',
+  cancelled: 'info',
+  unread: 'info',
+  read: 'positive',
 }
 
-export default function StatusBadge({ status, size = 'sm' }: StatusBadgeProps) {
-  const key = status.toLowerCase()
-  const cls = STATUS_STYLES[key] || 'bg-gray-100 text-[#5F5E5A]'
-  const sizeCls = size === 'sm'
-    ? 'text-[10px] px-2 py-0.5'
-    : 'text-xs px-2.5 py-1'
+export default function StatusBadge({ status }: StatusBadgeProps) {
+  const key = status.toLowerCase().replace(/\s+/g, '_')
+  const category = STATUS_CATEGORY[key] || 'info'
+  const showPulse = ['active', 'present', 'late', 'overdue', 'pending'].includes(key)
 
   return (
-    <span className={`inline-flex font-semibold rounded-md ${cls} ${sizeCls}`}>
-      {status}
-    </span>
+    <CategoryBadge category={category} label={status} showPulse={showPulse} />
   )
 }

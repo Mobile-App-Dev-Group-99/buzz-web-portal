@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
 import StatusBadge from '../../components/StatusBadge'
 import { getTeacherClass, getTeacherRoster, markManualAttendance } from '../../services/api'
+import AuroraBackground from '../../components/AuroraBackground'
+import GlassCard from '../../components/GlassCard'
+import StatTile from '../../components/StatTile'
+import CategoryBadge from '../../components/CategoryBadge'
+import { CheckCircle, Clock, XCircle, Users, ScanBarcode, CalendarDays } from 'lucide-react'
 
 export default function TeacherDashboard() {
   const [students, setStudents] = useState<any[]>([])
@@ -74,90 +79,91 @@ export default function TeacherDashboard() {
   }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold text-[#1a1a18]">{className} — Class Attendance</h1>
-          <p className="text-[#5F5E5A] text-xs mt-1">{new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
-        </div>
-        <div className="flex items-center gap-2 bg-[#E1F5EE] px-3 py-1.5 rounded-md">
-          <div className="w-2 h-2 rounded-full bg-[#1D9E75]"></div>
-          <span className="text-xs font-semibold text-[#0F6E56]">LIVE</span>
-        </div>
-      </div>
-
-      {/* Quick Scan */}
-      <div className="bg-white rounded-lg border border-[#D8D5CC] p-4 mb-6">
-        <div className="text-[10px] font-semibold text-[#5F5E5A] uppercase tracking-wide mb-2">Quick Attendance</div>
-        <div className="flex gap-2">
-          <input
-            placeholder="Type student ID and press Enter..."
-            value={scanInput}
-            onChange={e => setScanInput(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') handleScan() }}
-            className="flex-1 border border-[#D8D5CC] rounded-lg px-3 py-2 text-xs outline-none focus:border-[#1D9E75] bg-[#F7F6F2]"
-          />
-          <button onClick={handleScan} className="bg-[#1D9E75] text-white text-xs font-medium px-4 py-2 rounded-lg hover:bg-[#0F6E56] transition-colors">
-            Mark Present
-          </button>
-        </div>
-        {scanMsg && <div className="text-[11px] text-[#0F6E56] mt-2 font-medium">{scanMsg}</div>}
-      </div>
-
-      <div className="grid grid-cols-4 gap-3 mb-6">
-        {[
-          { label: 'Present', val: String(present), color: 'text-[#0F6E56]', bg: 'bg-[#E1F5EE]' },
-          { label: 'Late', val: String(late), color: 'text-[#854F0B]', bg: 'bg-[#FAEEDA]' },
-          { label: 'Absent', val: String(absent), color: 'text-[#791F1F]', bg: 'bg-[#FCEBEB]' },
-          { label: 'Total', val: String(students.length), color: 'text-[#5F5E5A]', bg: 'bg-[#F7F6F2]' },
-        ].map(s => (
-          <div key={s.label} className={`${s.bg} rounded-lg p-4 text-center`}>
-            <div className={`text-3xl font-bold ${s.color}`}>{s.val}</div>
-            <div className={`text-xs font-medium ${s.color} mt-1`}>{s.label}</div>
+    <div className="relative">
+      <AuroraBackground />
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-xl font-bold text-aurora-text">{className} — Class Attendance</h1>
+            <p className="text-aurora-text-secondary text-xs mt-1 flex items-center gap-1.5">
+              <CalendarDays className="w-3.5 h-3.5" />
+              {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </p>
           </div>
-        ))}
-      </div>
-
-      <div className="bg-white rounded-lg border border-[#D8D5CC] overflow-hidden">
-        <div className="px-4 py-3 border-b border-[#D8D5CC] flex gap-3">
-          {[
-            { key: 'all', label: `All (${students.length})` },
-            { key: 'present', label: `Present (${present})` },
-            { key: 'late', label: `Late (${late})` },
-            { key: 'absent', label: `Absent (${absent})` },
-          ].map(t => (
-            <button key={t.key} onClick={() => setTab(t.key)} className={`text-xs font-medium pb-1 border-b-2 transition-all ${
-              tab === t.key ? 'text-[#0F6E56] border-[#1D9E75]' : 'text-[#5F5E5A] border-transparent hover:text-[#1D9E75] hover:border-[#1D9E75]'
-            }`}>{t.label}</button>
-          ))}
+          <CategoryBadge category="positive" label="LIVE" showPulse />
         </div>
-        <table className="w-full">
-          <thead><tr className="bg-[#F7F6F2] border-b border-[#D8D5CC]">
-            {['Student', 'ID', 'Status', 'Action'].map(h => (
-              <th key={h} className="text-left text-[10px] font-semibold text-[#5F5E5A] uppercase tracking-wide px-4 py-2">{h}</th>
+
+        <GlassCard className="mb-6">
+          <div className="text-[10px] font-semibold text-aurora-label-muted uppercase tracking-wide mb-2 flex items-center gap-1.5">
+            <ScanBarcode className="w-3.5 h-3.5" />
+            Quick Attendance
+          </div>
+          <div className="flex gap-2">
+            <input
+              placeholder="Type student ID and press Enter..."
+              value={scanInput}
+              onChange={e => setScanInput(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleScan() }}
+              className="input-glass flex-1 px-4 py-2.5 text-xs text-aurora-text placeholder:text-aurora-label-muted"
+            />
+            <button onClick={handleScan} className="btn-primary text-xs px-5 py-2.5 flex items-center gap-1.5">
+              <CheckCircle className="w-3.5 h-3.5" />
+              Mark Present
+            </button>
+          </div>
+          {scanMsg && <div className="text-[11px] text-cat-positive mt-2 font-medium">{scanMsg}</div>}
+        </GlassCard>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+          <StatTile label="Present" value={present} icon={CheckCircle} category="positive" subtitle="Checked in" />
+          <StatTile label="Late" value={late} icon={Clock} category="warning" subtitle="Arrived late" />
+          <StatTile label="Absent" value={absent} icon={XCircle} category="negative" subtitle="Not scanned" />
+          <StatTile label="Total" value={students.length} icon={Users} category="info" subtitle="In class" />
+        </div>
+
+        <GlassCard noPadding>
+          <div className="px-4 py-3 border-b border-aurora-divider flex gap-3">
+            {[
+              { key: 'all', label: `All (${students.length})` },
+              { key: 'present', label: `Present (${present})` },
+              { key: 'late', label: `Late (${late})` },
+              { key: 'absent', label: `Absent (${absent})` },
+            ].map(t => (
+              <button key={t.key} onClick={() => setTab(t.key)} className={`text-xs font-medium pb-1 border-b-2 transition-all ${
+                tab === t.key ? 'text-cat-positive border-cat-positive' : 'text-aurora-text-secondary border-transparent hover:text-cat-positive hover:border-cat-positive'
+              }`}>{t.label}</button>
             ))}
-          </tr></thead>
-          <tbody>
-            {loading && (
-              <tr><td colSpan={4} className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">Loading class data...</td></tr>
-            )}
-            {!loading && filtered.length === 0 && (
-              <tr><td colSpan={4} className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">No students in class</td></tr>
-            )}
-            {filtered.map(s => (
-              <tr key={s.id} className="border-b border-[#F7F6F2] hover:bg-[#F7F6F2]">
-                <td className="px-4 py-2.5 font-medium text-xs">{s.name}</td>
-                <td className="px-4 py-2.5 text-[11px] text-[#5F5E5A] font-mono">{s.code}</td>
-                <td className="px-4 py-2.5"><StatusBadge status={s.status} /></td>
-                <td className="px-4 py-2.5">
-                  {s.status === 'absent' && (
-                    <button onClick={() => handleMarkPresent(s.id)} className="text-xs bg-[#1a1a18] text-white px-2 py-0.5 rounded font-medium">Mark Present</button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          </div>
+          <table className="w-full">
+            <thead><tr className="bg-aurora-surface border-b border-aurora-divider">
+              {['Student', 'ID', 'Status', 'Action'].map(h => (
+                <th key={h} className="text-left text-[10px] font-semibold text-aurora-label-muted uppercase tracking-wide px-4 py-2.5">{h}</th>
+              ))}
+            </tr></thead>
+            <tbody>
+              {loading && (
+                <tr><td colSpan={4} className="px-4 py-10 text-center text-[11px] text-aurora-text-secondary">Loading class data...</td></tr>
+              )}
+              {!loading && filtered.length === 0 && (
+                <tr><td colSpan={4} className="px-4 py-10 text-center text-[11px] text-aurora-text-secondary">No students in class</td></tr>
+              )}
+              {filtered.map(s => (
+                <tr key={s.id} className="border-b border-aurora-divider hover:bg-aurora-surface/50 transition-colors">
+                  <td className="px-4 py-2.5 font-medium text-xs text-aurora-text">{s.name}</td>
+                  <td className="px-4 py-2.5 text-[11px] text-aurora-text-secondary font-mono">{s.code}</td>
+                  <td className="px-4 py-2.5"><StatusBadge status={s.status} /></td>
+                  <td className="px-4 py-2.5">
+                    {s.status === 'absent' && (
+                      <button onClick={() => handleMarkPresent(s.id)} className="btn-primary text-[11px] px-3 py-1">
+                        Mark Present
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </GlassCard>
       </div>
     </div>
   )

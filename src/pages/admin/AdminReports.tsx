@@ -1,4 +1,8 @@
 import { useState, useEffect } from 'react'
+import { TrendingUp, BarChart3, Clock, Plane, FileDown, Table } from 'lucide-react'
+import GlassCard from '../../components/GlassCard'
+import AuroraBackground from '../../components/AuroraBackground'
+import StatTile from '../../components/StatTile'
 import { getTodaySummary, getWeeklyRates, getSchoolExeats } from '../../services/api'
 
 export default function AdminReports() {
@@ -44,49 +48,50 @@ export default function AdminReports() {
   }
 
   return (
-    <div>
-      <div className="grid grid-cols-4 gap-3 mb-5">
-        {[
-          { label: 'Attendance Rate', val: stats.attendanceRate, sub: 'This term' },
-          { label: 'Avg Performance', val: stats.avgArrival, sub: 'Weekly average' },
-          { label: 'Late Rate', val: stats.lateRate, sub: 'Of all students' },
-          { label: 'Exeats This Term', val: stats.exeatCount, sub: 'Total exeat records' },
-        ].map(s => (
-          <div key={s.label} className="bg-white rounded-lg border border-[#D8D5CC] p-4">
-            <div className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-2">{s.label}</div>
-            <div className="text-2xl font-bold text-[#1a1a18]">{s.val}</div>
-            <div className="text-[11px] text-[#5F5E5A] mt-1">{s.sub}</div>
-          </div>
-        ))}
-      </div>
-      <div className="bg-white rounded-lg border border-[#D8D5CC] p-4">
-        <div className="font-semibold text-xs mb-4">Generate Report</div>
-        <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-1 block">Report Type</label>
-            <select value={reportType} onChange={e => setReportType(e.target.value)} className="w-full border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white">
-              <option value="daily">Daily Attendance</option>
-              <option value="weekly">Weekly Summary</option>
-              <option value="termly">Termly Attendance</option>
-              <option value="exeat">Exeat History</option>
-            </select>
-          </div>
-          <div><label className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-1 block">Date From</label>
-            <input type="date" className="w-full border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white" />
-          </div>
-          <div><label className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-1 block">Date To</label>
-            <input type="date" className="w-full border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white" />
-          </div>
-          <div className="flex items-end">
-            <div className="flex gap-2 w-full">
-              <button onClick={() => handleExport('pdf')} disabled={generating} className="flex-1 bg-[#1D9E75] text-white text-xs font-semibold py-2 rounded-lg disabled:opacity-50">
-                {generating ? 'Generating...' : 'Export PDF'}
-              </button>
-              <button onClick={() => handleExport('excel')} disabled={generating} className="flex-1 border border-[#D8D5CC] text-xs font-semibold py-2 rounded-lg bg-white disabled:opacity-50">
-                Export Excel
-              </button>
+    <div className="relative min-h-screen">
+      <AuroraBackground />
+      <div className="relative z-10 space-y-5">
+        <div className="grid grid-cols-4 gap-3">
+          <StatTile label="Attendance Rate" value={stats.attendanceRate} icon={TrendingUp} category="positive" subtitle="This term" />
+          <StatTile label="Avg Performance" value={stats.avgArrival} icon={BarChart3} category="info" subtitle="Weekly average" />
+          <StatTile label="Late Rate" value={stats.lateRate} icon={Clock} category="warning" subtitle="Of all students" />
+          <StatTile label="Exeats This Term" value={stats.exeatCount} icon={Plane} category="negative" subtitle="Total exeat records" />
+        </div>
+
+        <GlassCard>
+          <div className="font-semibold text-xs mb-4 text-aurora-text">Generate Report</div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-[10px] font-semibold text-aurora-text-secondary uppercase mb-1 block">Report Type</label>
+              <select value={reportType} onChange={e => setReportType(e.target.value)} className="input-glass w-full px-3 py-1.5 text-xs">
+                <option value="daily">Daily Attendance</option>
+                <option value="weekly">Weekly Summary</option>
+                <option value="termly">Termly Attendance</option>
+                <option value="exeat">Exeat History</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold text-aurora-text-secondary uppercase mb-1 block">Date From</label>
+              <input type="date" className="input-glass w-full px-3 py-1.5 text-xs" />
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold text-aurora-text-secondary uppercase mb-1 block">Date To</label>
+              <input type="date" className="input-glass w-full px-3 py-1.5 text-xs" />
+            </div>
+            <div className="flex items-end">
+              <div className="flex gap-2 w-full">
+                <button onClick={() => handleExport('pdf')} disabled={generating} className="btn-primary flex-1 text-xs font-semibold py-2 disabled:opacity-50 flex items-center justify-center gap-1.5">
+                  <FileDown size={14} />
+                  {generating ? 'Generating...' : 'Export PDF'}
+                </button>
+                <button onClick={() => handleExport('excel')} disabled={generating} className="btn-secondary flex-1 text-xs font-semibold py-2 disabled:opacity-50 flex items-center justify-center gap-1.5">
+                  <Table size={14} />
+                  Export Excel
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </GlassCard>
       </div>
     </div>
   )

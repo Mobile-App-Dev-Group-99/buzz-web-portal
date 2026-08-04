@@ -11,15 +11,40 @@ const SIZES = {
   lg: 'w-10 h-10 text-xs',
 }
 
+const AURORA_COLORS = [
+  'bg-cat-positive text-white',
+  'bg-cat-info text-white',
+  'bg-cat-warning text-white',
+  'bg-aurora-text text-white',
+]
+
 function safeInitials(raw: string | undefined | null): string {
   if (!raw || raw === 'undefined' || raw === 'null') return '?'
   return raw.slice(0, 2).toUpperCase()
 }
 
-export default function Avatar({ initials, size = 'md', color = 'bg-[#1D9E75] text-white', className = '' }: AvatarProps) {
+function hashColor(raw: string): string {
+  let hash = 0
+  for (let i = 0; i < raw.length; i++) {
+    hash = raw.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return AURORA_COLORS[Math.abs(hash) % AURORA_COLORS.length]
+}
+
+export default function Avatar({
+  initials,
+  size = 'md',
+  color,
+  className = '',
+}: AvatarProps) {
+  const resolved = safeInitials(initials)
+  const bg = color || hashColor(resolved)
+
   return (
-    <div className={`rounded-lg flex items-center justify-center font-bold ${SIZES[size]} ${color} ${className}`}>
-      {safeInitials(initials)}
+    <div
+      className={`rounded-lg flex items-center justify-center font-bold ${SIZES[size]} ${bg} ${className}`}
+    >
+      {resolved}
     </div>
   )
 }

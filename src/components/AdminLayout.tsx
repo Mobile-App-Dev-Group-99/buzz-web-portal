@@ -1,17 +1,19 @@
 import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Avatar from './Avatar'
+import AuroraBackground from './AuroraBackground'
+import { Hexagon, LayoutDashboard, Radio, Users, FileOutput, BarChart3, MessageSquare, UserCog, ClipboardList, Settings, LogOut, CalendarDays } from 'lucide-react'
 
 const NAV_ITEMS = [
-  { to: '/admin', icon: '▦', label: 'Dashboard', end: true },
-  { to: '/admin/attendance', icon: '⊙', label: 'Gate Attendance' },
-  { to: '/admin/students', icon: '□', label: 'Students' },
-  { to: '/admin/exeats', icon: '↗', label: 'Exeats' },
-  { to: '/admin/results', icon: '≡', label: 'Results' },
-  { to: '/admin/messaging', icon: '◎', label: 'Messaging' },
-  { to: '/admin/staff', icon: '⊞', label: 'Staff' },
-  { to: '/admin/reports', icon: '▤', label: 'Reports' },
-  { to: '/admin/settings', icon: '⊕', label: 'Settings' },
+  { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
+  { to: '/admin/attendance', icon: Radio, label: 'Gate Attendance' },
+  { to: '/admin/students', icon: Users, label: 'Students' },
+  { to: '/admin/exeats', icon: FileOutput, label: 'Exeats' },
+  { to: '/admin/results', icon: BarChart3, label: 'Results' },
+  { to: '/admin/messaging', icon: MessageSquare, label: 'Messaging' },
+  { to: '/admin/staff', icon: UserCog, label: 'Staff' },
+  { to: '/admin/reports', icon: ClipboardList, label: 'Reports' },
+  { to: '/admin/settings', icon: Settings, label: 'Settings' },
 ]
 
 export default function AdminLayout() {
@@ -24,92 +26,105 @@ export default function AdminLayout() {
     navigate('/login')
   }
 
+  const currentLabel = NAV_ITEMS.find(n => location.pathname === n.to || location.pathname.startsWith(n.to + '/'))?.label || 'Dashboard'
+
   return (
-    <div className="flex min-h-screen bg-[#F7F6F2] font-sans text-sm">
-      <aside className="w-52 bg-[#1a1a18] flex flex-col flex-shrink-0 min-h-screen">
-        <div className="px-4 py-5 border-b border-white/5">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 bg-[#1D9E75] rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs font-bold">B</span>
+    <div className="flex min-h-screen bg-aurora-bg font-sans text-sm">
+      <aside className="w-56 sidebar-glass flex flex-col flex-shrink-0 min-h-screen relative z-10">
+        <AuroraBackground />
+        <div className="relative z-10 px-4 py-5 border-b border-aurora-divider">
+          <div className="flex items-center gap-2.5 mb-3">
+            <div className="w-9 h-9 bg-aurora-text rounded-xl flex items-center justify-center shadow-md">
+              <Hexagon className="w-5 h-5 text-white" strokeWidth={2} />
             </div>
             <div>
-              <div className="text-white font-semibold text-sm">BuzzApp</div>
-              <div className="text-gray-500 text-[10px]">School Web Portal</div>
+              <div className="text-aurora-text font-bold text-sm">BuzzApp</div>
+              <div className="text-aurora-label-muted text-[10px]">School Web Portal</div>
             </div>
           </div>
-          <div className="bg-white/5 rounded-lg px-3 py-2 flex items-center gap-2">
-            <div className="w-6 h-6 bg-[#1D9E75] rounded flex items-center justify-center text-white text-[10px] font-bold">PA</div>
+          <div className="glass-card px-3 py-2 flex items-center gap-2.5">
+            <div className="w-7 h-7 bg-cat-positive rounded-lg flex items-center justify-center text-white text-[10px] font-bold">PA</div>
             <div>
-              <div className="text-gray-300 text-xs font-medium">Prempeh Academy</div>
-              <div className="text-gray-500 text-[10px]">JHS & SHS</div>
+              <div className="text-aurora-text text-xs font-semibold">Prempeh Academy</div>
+              <div className="text-aurora-label-muted text-[10px]">JHS & SHS</div>
             </div>
           </div>
         </div>
 
-        <nav className="flex-1 py-3">
-          <div className="px-4 py-1 text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Main</div>
-          {NAV_ITEMS.slice(0, 6).map(item => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                `w-full flex items-center gap-2.5 px-4 py-2 text-xs font-medium transition-all ${
-                  isActive
-                    ? 'bg-[#1D9E75]/15 text-[#4ec9a0] border-l-2 border-[#1D9E75]'
-                    : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
-                }`
-              }
-            >
-              <span className="w-4 text-center">{item.icon}</span>{item.label}
-            </NavLink>
-          ))}
-          <div className="px-4 py-1 mt-2 text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Admin</div>
-          {NAV_ITEMS.slice(6).map(item => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `w-full flex items-center gap-2.5 px-4 py-2 text-xs font-medium transition-all ${
-                  isActive
-                    ? 'bg-[#1D9E75]/15 text-[#4ec9a0] border-l-2 border-[#1D9E75]'
-                    : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
-                }`
-              }
-            >
-              <span className="w-4 text-center">{item.icon}</span>{item.label}
-            </NavLink>
-          ))}
+        <nav className="flex-1 py-3 relative z-10">
+          <div className="px-4 py-1 text-[10px] font-semibold text-aurora-label-muted uppercase tracking-wider">Main</div>
+          {NAV_ITEMS.slice(0, 6).map(item => {
+            const Icon = item.icon
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) =>
+                  `w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium transition-all ${
+                    isActive
+                      ? 'bg-aurora-surface text-aurora-text border-l-2 border-cat-positive rounded-r-lg mx-2 px-2'
+                      : 'text-aurora-text-secondary hover:bg-aurora-surface/50 hover:text-aurora-text mx-2 px-2 rounded-lg'
+                  }`
+                }
+              >
+                <Icon className="w-4 h-4" strokeWidth={1.8} />
+                {item.label}
+              </NavLink>
+            )
+          })}
+          <div className="px-4 py-1 mt-2 text-[10px] font-semibold text-aurora-label-muted uppercase tracking-wider">Admin</div>
+          {NAV_ITEMS.slice(6).map(item => {
+            const Icon = item.icon
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) =>
+                  `w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium transition-all ${
+                    isActive
+                      ? 'bg-aurora-surface text-aurora-text border-l-2 border-cat-positive rounded-r-lg mx-2 px-2'
+                      : 'text-aurora-text-secondary hover:bg-aurora-surface/50 hover:text-aurora-text mx-2 px-2 rounded-lg'
+                  }`
+                }
+              >
+                <Icon className="w-4 h-4" strokeWidth={1.8} />
+                {item.label}
+              </NavLink>
+            )
+          })}
         </nav>
 
-        <div className="px-4 py-3 border-t border-white/5">
-          <div className="flex items-center gap-2">
+        <div className="px-4 py-3 border-t border-aurora-divider relative z-10">
+          <div className="flex items-center gap-2.5">
             <Avatar
               initials={user ? `${(user.firstName || '')[0] || ''}${(user.lastName || '')[0] || ''}` : 'HK'}
-              size="sm"
-              color="bg-gray-700 text-gray-300"
+              size="md"
+              color="bg-aurora-surface text-aurora-text"
             />
-            <div>
-              <div className="text-gray-300 text-xs font-medium">{user ? `${user.firstName} ${user.lastName}` : 'Admin'}</div>
-              <div className="text-gray-500 text-[10px]">Administrator</div>
+            <div className="flex-1 min-w-0">
+              <div className="text-aurora-text text-xs font-semibold truncate">{user ? `${user.firstName} ${user.lastName}` : 'Admin'}</div>
+              <div className="text-aurora-label-muted text-[10px]">Administrator</div>
             </div>
           </div>
-          <button onClick={handleLogout} className="mt-2 text-[10px] text-gray-600 hover:text-gray-400">Log out</button>
+          <button onClick={handleLogout} className="mt-2.5 text-[10px] text-aurora-label-muted hover:text-cat-negative flex items-center gap-1 transition-colors">
+            <LogOut className="w-3 h-3" />
+            Log out
+          </button>
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col">
-        <header className="bg-white border-b border-[#D8D5CC] px-6 h-12 flex items-center justify-between flex-shrink-0">
-          <span className="font-semibold text-[#1a1a18] text-sm">
-            {NAV_ITEMS.find(n => location.pathname === n.to || location.pathname.startsWith(n.to + '/'))?.label || 'Dashboard'}
-          </span>
+      <div className="flex-1 flex flex-col relative">
+        <header className="glass-card rounded-none border-x-0 border-t-0 px-6 h-13 flex items-center justify-between flex-shrink-0 relative z-10">
+          <span className="font-bold text-aurora-text text-sm">{currentLabel}</span>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-[#5F5E5A] bg-[#F7F6F2] px-3 py-1 rounded-md border border-[#D8D5CC]">
+            <span className="text-xs text-aurora-text-secondary bg-aurora-surface px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+              <CalendarDays className="w-3.5 h-3.5" />
               {new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}
             </span>
           </div>
         </header>
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-6 overflow-y-auto relative z-10">
           <Outlet />
         </main>
       </div>

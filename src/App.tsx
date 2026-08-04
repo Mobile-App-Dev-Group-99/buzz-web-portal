@@ -23,8 +23,8 @@ function ProtectedRoute({ children, allowedRole }: { children: React.ReactNode; 
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F7F6F2] flex items-center justify-center">
-        <div className="text-xs text-[#5F5E5A]">Loading...</div>
+      <div className="min-h-screen bg-aurora-bg flex items-center justify-center">
+        <div className="text-xs text-aurora-text-secondary">Loading...</div>
       </div>
     )
   }
@@ -39,7 +39,7 @@ function AppRoutes() {
   const { user } = useAuth()
 
   return (
-    <Suspense fallback={<div className="flex items-center justify-center h-64 text-[#5F5E5A]">Loading...</div>}>
+    <Suspense fallback={<div className="flex items-center justify-center h-64 text-aurora-text-secondary">Loading...</div>}>
       <Routes>
         <Route path="/login" element={
           user ? <Navigate to={`/${user.role}`} replace /> : <LoginPage />

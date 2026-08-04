@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react'
 import StatusBadge from '../../components/StatusBadge'
 import Avatar from '../../components/Avatar'
 import { getParentChildren, getStudentAttendance, getParentNotifications, getStudentExeats, markNotificationRead } from '../../services/api'
+import AuroraBackground from '../../components/AuroraBackground'
+import GlassCard from '../../components/GlassCard'
+import StatTile from '../../components/StatTile'
+import CategoryBadge from '../../components/CategoryBadge'
+import { TrendingUp, ScanBarcode, CheckCircle, CalendarDays, Bell, FileText, Clock, AlertTriangle, Check, X, CornerDownLeft } from 'lucide-react'
 
 export default function ParentDashboard() {
   const [children, setChildren] = useState<any[]>([])
@@ -64,17 +69,16 @@ export default function ParentDashboard() {
           setNotifications(list.slice(0, 10).map((n: any) => {
             const t = (n.type || '').toUpperCase()
             const msg = n.message || ''
-            let color = 'bg-[#E1F5EE]', icon = '✓'
-            if (t === 'LATE' || (!t && /late/i.test(msg))) { color = 'bg-[#FAEEDA]'; icon = '!' }
-            else if (t === 'DEPARTED' || (!t && /left|departed/i.test(msg))) { color = 'bg-[#E8EDF5]'; icon = '↩' }
-            else if (t === 'ABSENT' || (!t && /absent/i.test(msg))) { color = 'bg-[#FDEAEA]'; icon = '✕' }
-            else if (t?.startsWith('EXEAT')) { color = 'bg-[#E8EDF5]'; icon = '📋' }
+            let iconType = 'check'
+            if (t === 'LATE' || (!t && /late/i.test(msg))) iconType = 'alert'
+            else if (t === 'DEPARTED' || (!t && /left|departed/i.test(msg))) iconType = 'return'
+            else if (t === 'ABSENT' || (!t && /absent/i.test(msg))) iconType = 'cross'
+            else if (t?.startsWith('EXEAT')) iconType = 'file'
             return {
               id: n.id,
               text: msg || 'Notification',
               time: n.sentAt ? new Date(n.sentAt).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }) : '',
-              color,
-              icon,
+              iconType,
               isRead: n.isRead,
             }
           }))
@@ -85,155 +89,178 @@ export default function ParentDashboard() {
 
   const child = children[activeChild]
 
+  const NOTIF_ICONS: Record<string, { bg: string; el: React.ReactNode }> = {
+    check: { bg: 'category-badge-positive', el: <Check className="w-3.5 h-3.5 text-cat-positive" /> },
+    alert: { bg: 'category-badge-warning', el: <AlertTriangle className="w-3.5 h-3.5 text-cat-warning" /> },
+    cross: { bg: 'category-badge-negative', el: <X className="w-3.5 h-3.5 text-cat-negative" /> },
+    return: { bg: 'category-badge-info', el: <CornerDownLeft className="w-3.5 h-3.5 text-cat-info" /> },
+    file: { bg: 'category-badge-info', el: <FileText className="w-3.5 h-3.5 text-cat-info" /> },
+  }
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-xs text-[#5F5E5A]">Loading...</div>
+      <div className="relative">
+        <AuroraBackground />
+        <div className="relative z-10 flex items-center justify-center py-12">
+          <div className="text-sm text-aurora-text-secondary">Loading...</div>
+        </div>
       </div>
     )
   }
 
   if (children.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-xs text-[#5F5E5A]">No children linked to your account</div>
+      <div className="relative">
+        <AuroraBackground />
+        <div className="relative z-10 flex items-center justify-center py-12">
+          <div className="text-sm text-aurora-text-secondary">No children linked to your account</div>
+        </div>
       </div>
     )
   }
 
   return (
-    <div>
-      <div className="flex gap-3 mb-6">
-        {children.map((c, i) => (
-          <button
-            key={c.id}
-            onClick={() => setActiveChild(i)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium border transition-all ${
-              i === activeChild
-                ? 'bg-[#1D9E75] text-white border-[#1D9E75]'
-                : 'bg-white text-[#5F5E5A] border-[#D8D5CC] hover:border-[#1D9E75]'
-            }`}
-          >
-            <Avatar
-              initials={(c.name || '').split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
-              size="sm"
-              color={i === activeChild ? 'bg-white/20 text-white' : 'bg-[#F7F6F2] text-[#5F5E5A]'}
-            />
-            {c.name} · {c.class}
-          </button>
-        ))}
-      </div>
+    <div className="relative">
+      <AuroraBackground />
+      <div className="relative z-10">
+        <div className="flex gap-3 mb-6">
+          {children.map((c, i) => (
+            <button
+              key={c.id}
+              onClick={() => setActiveChild(i)}
+              className={`flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                i === activeChild
+                  ? 'glass-card border-cat-positive/30 text-aurora-text'
+                  : 'glass-card text-aurora-text-secondary hover:text-aurora-text'
+              }`}
+            >
+              <Avatar
+                initials={(c.name || '').split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
+                size="sm"
+                color={i === activeChild ? 'bg-cat-positive text-white' : 'bg-aurora-surface text-aurora-text-secondary'}
+              />
+              {c.name} · {c.class}
+            </button>
+          ))}
+        </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg border border-[#D8D5CC] p-4">
-          <div className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-2">Attendance Rate</div>
-          <div className="text-3xl font-bold text-[#1a1a18]">
-            {history.length > 0 ? `${Math.round(history.filter(h => h.status !== 'absent').length / Math.max(history.length, 1) * 100)}%` : '—'}
-          </div>
-          <div className="text-xs text-[#5F5E5A] mt-1">This term</div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+          <StatTile
+            label="Attendance Rate"
+            value={history.length > 0 ? `${Math.round(history.filter(h => h.status !== 'absent').length / Math.max(history.length, 1) * 100)}%` : '—'}
+            icon={TrendingUp}
+            category="positive"
+            subtitle="This term"
+          />
+          <StatTile
+            label="Total Scans"
+            value={history.length}
+            icon={ScanBarcode}
+            category="info"
+            subtitle="This period"
+          />
+          <StatTile
+            label="Today's Status"
+            value={history.length > 0 && history[0]?.status === 'present' ? '✓' : history[0]?.status === 'late' ? 'L' : '—'}
+            icon={CheckCircle}
+            category={history.length > 0 && history[0]?.status === 'present' ? 'positive' : history[0]?.status === 'late' ? 'warning' : 'info'}
+            subtitle={history[0]?.time ? `${history[0].time} · ${history[0].gate || ''}` : 'No scan yet'}
+          />
         </div>
-        <div className="bg-white rounded-lg border border-[#D8D5CC] p-4">
-          <div className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-2">Total Scans</div>
-          <div className="text-3xl font-bold text-[#1a1a18]">{history.length}</div>
-          <div className="text-xs text-[#5F5E5A] mt-1">This period</div>
-        </div>
-        <div className="bg-white rounded-lg border border-[#D8D5CC] p-4">
-          <div className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-2">Today's Status</div>
-          <div className="text-3xl font-bold text-[#0F6E56]">
-            {history.length > 0 && history[0]?.status === 'present' ? '✓' : history[0]?.status === 'late' ? 'L' : '—'}
-          </div>
-          <div className="text-xs text-[#5F5E5A] mt-1">
-            {history[0]?.time ? `${history[0].time} · ${history[0].gate || ''}` : 'No scan yet'}
-          </div>
-        </div>
-      </div>
 
-      <div className="bg-white rounded-lg border border-[#D8D5CC] overflow-hidden mb-4">
-        <div className="px-4 py-3 border-b border-[#D8D5CC]">
-          <span className="font-semibold text-xs">Attendance History — {child?.name || '—'}</span>
-        </div>
-        <table className="w-full">
-          <thead><tr className="bg-[#F7F6F2] border-b border-[#D8D5CC]">
-            {['Date', 'Event', 'Time', 'Status'].map(h => (
-              <th key={h} className="text-left text-[10px] font-semibold text-[#5F5E5A] uppercase tracking-wide px-4 py-2">{h}</th>
-            ))}
-          </tr></thead>
-          <tbody>
-            {history.length === 0 && (
-              <tr><td colSpan={4} className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">No attendance records</td></tr>
-            )}
-            {history.map((item, i) => (
-              <tr key={i} className="border-b border-[#F7F6F2] hover:bg-[#F7F6F2]">
-                <td className="px-4 py-2.5 text-xs font-medium text-[#5F5E5A]">{item.date}</td>
-                <td className="px-4 py-2.5 text-xs text-[#5F5E5A]">{item.event}</td>
-                <td className="px-4 py-2.5 text-[11px] text-[#5F5E5A] font-mono">{item.time || '—'}</td>
-                <td className="px-4 py-2.5"><StatusBadge status={item.status} /></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+        <GlassCard noPadding className="mb-4">
+          <div className="px-4 py-3 border-b border-aurora-divider flex items-center gap-2">
+            <CalendarDays className="w-4 h-4 text-aurora-text-secondary" />
+            <span className="font-semibold text-xs text-aurora-text">Attendance History — {child?.name || '—'}</span>
+          </div>
+          <table className="w-full">
+            <thead><tr className="bg-aurora-surface border-b border-aurora-divider">
+              {['Date', 'Event', 'Time', 'Status'].map(h => (
+                <th key={h} className="text-left text-[10px] font-semibold text-aurora-label-muted uppercase tracking-wide px-4 py-2.5">{h}</th>
+              ))}
+            </tr></thead>
+            <tbody>
+              {history.length === 0 && (
+                <tr><td colSpan={4} className="px-4 py-10 text-center text-[11px] text-aurora-text-secondary">No attendance records</td></tr>
+              )}
+              {history.map((item, i) => (
+                <tr key={i} className="border-b border-aurora-divider hover:bg-aurora-surface/50 transition-colors">
+                  <td className="px-4 py-2.5 text-xs font-medium text-aurora-text-secondary">{item.date}</td>
+                  <td className="px-4 py-2.5 text-xs text-aurora-text-secondary">{item.event}</td>
+                  <td className="px-4 py-2.5 text-[11px] text-aurora-text-secondary font-mono">{item.time || '—'}</td>
+                  <td className="px-4 py-2.5"><StatusBadge status={item.status} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </GlassCard>
 
-      <div className="bg-white rounded-lg border border-[#D8D5CC] overflow-hidden mb-4">
-        <div className="px-4 py-3 border-b border-[#D8D5CC]">
-          <span className="font-semibold text-xs">Exeat Requests — {child?.name || '—'}</span>
-        </div>
-        {exeats.length === 0 && (
-          <div className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">No exeat requests</div>
-        )}
-        {exeats.map((ex: any) => {
-          const statusColors: Record<string, string> = {
-            PENDING: 'bg-[#FAEEDA] text-[#D4850A]',
-            APPROVED: 'bg-[#E1F5EE] text-[#0F6E56]',
-            DENIED: 'bg-[#FDEAEA] text-[#C0392B]',
-            RETURNED: 'bg-[#E1F5EE] text-[#0F6E56]',
-            OVERDUE: 'bg-[#FDEAEA] text-[#C0392B]',
-          }
-          const statusClass = statusColors[ex.status] || 'bg-[#F7F6F2] text-[#5F5E5A]'
-          return (
-            <div key={ex.id} className="flex items-center gap-3 px-4 py-3 border-b border-[#F7F6F2] hover:bg-[#F7F6F2]">
-              <div className="flex-1">
-                <div className="text-xs font-medium text-[#1a1a18]">{ex.reason || 'Exeat'}</div>
-                <div className="text-[10px] text-[#5F5E5A] mt-0.5">
-                  {ex.createdAt ? new Date(ex.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''}
-                  {ex.approvedByName && <span className="ml-2">· {ex.status === 'DENIED' ? 'Denied' : 'Approved'} by {ex.approvedByName}</span>}
+        <GlassCard noPadding className="mb-4">
+          <div className="px-4 py-3 border-b border-aurora-divider flex items-center gap-2">
+            <FileText className="w-4 h-4 text-aurora-text-secondary" />
+            <span className="font-semibold text-xs text-aurora-text">Exeat Requests — {child?.name || '—'}</span>
+          </div>
+          {exeats.length === 0 && (
+            <div className="px-4 py-10 text-center text-[11px] text-aurora-text-secondary">No exeat requests</div>
+          )}
+          {exeats.map((ex: any) => {
+            const statusMap: Record<string, string> = {
+              PENDING: 'category-badge-warning',
+              APPROVED: 'category-badge-positive',
+              DENIED: 'category-badge-negative',
+              RETURNED: 'category-badge-positive',
+              OVERDUE: 'category-badge-negative',
+            }
+            const badgeClass = statusMap[ex.status] || 'category-badge-info'
+            return (
+              <div key={ex.id} className="flex items-center gap-3 px-4 py-3 border-b border-aurora-divider hover:bg-aurora-surface/50 transition-colors">
+                <div className="flex-1">
+                  <div className="text-xs font-medium text-aurora-text">{ex.reason || 'Exeat'}</div>
+                  <div className="text-[10px] text-aurora-text-secondary mt-0.5">
+                    {ex.createdAt ? new Date(ex.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : ''}
+                    {ex.approvedByName && <span className="ml-2">· {ex.status === 'DENIED' ? 'Denied' : 'Approved'} by {ex.approvedByName}</span>}
+                  </div>
                 </div>
+                <span className={`${badgeClass} px-2.5 py-0.5 rounded-full text-[10px] font-semibold`}>
+                  {ex.status}
+                </span>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${statusClass}`}>
-                {ex.status}
-              </span>
-            </div>
-          )
-        })}
-      </div>
+            )
+          })}
+        </GlassCard>
 
-      <div className="bg-white rounded-lg border border-[#D8D5CC] overflow-hidden">
-        <div className="px-4 py-3 border-b border-[#D8D5CC]">
-          <span className="font-semibold text-xs">Recent Notifications</span>
-        </div>
-        {notifications.length === 0 && (
-          <div className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">No notifications</div>
-        )}
-        {notifications.map((n, i) => (
-          <div
-            key={n.id || i}
-            className={`flex items-center gap-3 px-4 py-3 border-b border-[#F7F6F2] hover:bg-[#F7F6F2] cursor-pointer ${n.isRead ? 'opacity-60' : ''}`}
-            onClick={() => {
-              if (!n.isRead && n.id) {
-                markNotificationRead(n.id)
-                setNotifications(prev => prev.map((x: any) => x.id === n.id ? { ...x, isRead: true } : x))
-              }
-            }}
-          >
-            <div className={`w-8 h-8 ${n.color} rounded-lg flex items-center justify-center`}>
-              <span className="text-xs">{n.icon}</span>
-            </div>
-            <div className="flex-1">
-              <div className="text-xs text-[#5F5E5A]">{n.text}</div>
-            </div>
-            <div className="text-[10px] text-[#5F5E5A]">{n.time}</div>
+        <GlassCard noPadding>
+          <div className="px-4 py-3 border-b border-aurora-divider flex items-center gap-2">
+            <Bell className="w-4 h-4 text-aurora-text-secondary" />
+            <span className="font-semibold text-xs text-aurora-text">Recent Notifications</span>
           </div>
-        ))}
+          {notifications.length === 0 && (
+            <div className="px-4 py-10 text-center text-[11px] text-aurora-text-secondary">No notifications</div>
+          )}
+          {notifications.map((n, i) => {
+            const iconData = NOTIF_ICONS[n.iconType] || NOTIF_ICONS.check
+            return (
+              <div
+                key={n.id || i}
+                className={`flex items-center gap-3 px-4 py-3 border-b border-aurora-divider hover:bg-aurora-surface/50 cursor-pointer transition-colors ${n.isRead ? 'opacity-50' : ''}`}
+                onClick={() => {
+                  if (!n.isRead && n.id) {
+                    markNotificationRead(n.id)
+                    setNotifications(prev => prev.map((x: any) => x.id === n.id ? { ...x, isRead: true } : x))
+                  }
+                }}
+              >
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${iconData.bg}`}>
+                  {iconData.el}
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs text-aurora-text-secondary">{n.text}</div>
+                </div>
+                <div className="text-[10px] text-aurora-label-muted">{n.time}</div>
+              </div>
+            )
+          })}
+        </GlassCard>
       </div>
     </div>
   )

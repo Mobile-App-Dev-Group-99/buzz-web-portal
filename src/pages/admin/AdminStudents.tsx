@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
+import { Search, Plus, X } from 'lucide-react'
 import StatusBadge from '../../components/StatusBadge'
 import Avatar from '../../components/Avatar'
+import GlassCard from '../../components/GlassCard'
+import AuroraBackground from '../../components/AuroraBackground'
 import { getAdminStudents, createStudent, updateStudent, deleteStudent } from '../../services/api'
 
 const emptyForm = { firstName: '', lastName: '', className: '', email: '', password: '' }
@@ -19,9 +22,9 @@ export default function AdminStudents() {
     setLoading(true)
     getAdminStudents()
       .then(data => {
-        const list = Array.isArray(data) ? data : data?.students || data?.content || []
+        const list = Array.isArray(data) ? data : data?.content || data?.students || []
         setStudents(list.map((s: any) => ({
-          id: s.studentCode || s.studentId || s.id,
+          id: s.id,
           firstName: s.firstName || '',
           lastName: s.lastName || '',
           name: `${s.firstName || ''} ${s.lastName || ''}`.trim() || 'Unknown',
@@ -87,111 +90,123 @@ export default function AdminStudents() {
   }
 
   return (
-    <div>
-      <div className="flex gap-2 mb-4">
-        <input
-          placeholder="Search by name, ID, class..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs w-64 outline-none focus:border-[#1D9E75] bg-white"
-        />
-        <button onClick={openAdd} className="ml-auto bg-[#1D9E75] text-white text-xs font-medium px-3 py-1.5 rounded-lg">+ Add Student</button>
-      </div>
-
-      {showForm && (
-        <div className="bg-white rounded-lg border border-[#D8D5CC] p-4 mb-4">
-          <div className="flex justify-between items-center mb-3">
-            <span className="font-semibold text-xs">{editingStudent ? 'Edit Student' : 'Add New Student'}</span>
-            <button onClick={() => { setShowForm(false); setEditingStudent(null); setForm(emptyForm) }} className="text-[#5F5E5A] text-xs">Cancel</button>
+    <div className="relative min-h-screen">
+      <AuroraBackground />
+      <div className="relative z-10 space-y-4">
+        <div className="flex gap-2">
+          <div className="relative flex-1 max-w-xs">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-aurora-label-muted" />
+            <input
+              placeholder="Search by name, ID, class..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="input-glass pl-9 pr-3 py-1.5 text-xs w-full"
+            />
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-1 block">First Name</label>
-              <input value={form.firstName} onChange={e => setForm({ ...form, firstName: e.target.value })} placeholder="First name" className="w-full border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white focus:border-[#1D9E75]" />
-            </div>
-            <div>
-              <label className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-1 block">Last Name</label>
-              <input value={form.lastName} onChange={e => setForm({ ...form, lastName: e.target.value })} placeholder="Last name" className="w-full border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white focus:border-[#1D9E75]" />
-            </div>
-            <div>
-              <label className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-1 block">Class</label>
-              <input value={form.className} onChange={e => setForm({ ...form, className: e.target.value })} placeholder="e.g. JSS1A" className="w-full border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white focus:border-[#1D9E75]" />
-            </div>
-            {!editingStudent && (
-              <>
-                <div>
-                  <label className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-1 block">Email</label>
-                  <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="Email" className="w-full border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white focus:border-[#1D9E75]" />
-                </div>
-                <div>
-                  <label className="text-[10px] font-semibold text-[#5F5E5A] uppercase mb-1 block">Password</label>
-                  <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="Password" className="w-full border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs outline-none bg-white focus:border-[#1D9E75]" />
-                </div>
-              </>
-            )}
-          </div>
-          <div className="mt-3 flex justify-end">
-            <button onClick={handleSubmit} disabled={saving} className="bg-[#1D9E75] text-white text-xs font-semibold px-4 py-2 rounded-lg disabled:opacity-50">
-              {saving ? 'Saving...' : editingStudent ? 'Update Student' : 'Add Student'}
-            </button>
-          </div>
+          <button onClick={openAdd} className="btn-primary text-xs px-3 py-1.5 flex items-center gap-1.5">
+            <Plus size={14} /> Add Student
+          </button>
         </div>
-      )}
 
-      {confirmDelete !== null && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg border border-[#D8D5CC] p-5 w-80 shadow-lg">
-            <p className="text-xs font-semibold text-[#1a1a18] mb-2">Delete Student</p>
-            <p className="text-xs text-[#5F5E5A] mb-4">Are you sure you want to delete this student? This action cannot be undone.</p>
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setConfirmDelete(null)} className="text-xs text-[#5F5E5A] border border-[#D8D5CC] px-3 py-1.5 rounded-lg hover:bg-[#F7F6F2]">Cancel</button>
-              <button onClick={() => handleDelete(confirmDelete)} className="text-xs text-white bg-[#791F1F] px-3 py-1.5 rounded-lg hover:bg-[#5C1717]">Delete</button>
+        {showForm && (
+          <GlassCard>
+            <div className="flex justify-between items-center mb-3">
+              <span className="font-semibold text-xs text-aurora-text">{editingStudent ? 'Edit Student' : 'Add New Student'}</span>
+              <button onClick={() => { setShowForm(false); setEditingStudent(null); setForm(emptyForm) }} className="text-aurora-text-secondary text-xs hover:text-aurora-text transition-colors">
+                <X size={14} />
+              </button>
             </div>
-          </div>
-        </div>
-      )}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[10px] font-semibold text-aurora-text-secondary uppercase mb-1 block">First Name</label>
+                <input value={form.firstName} onChange={e => setForm({ ...form, firstName: e.target.value })} placeholder="First name" className="input-glass w-full px-3 py-1.5 text-xs" />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold text-aurora-text-secondary uppercase mb-1 block">Last Name</label>
+                <input value={form.lastName} onChange={e => setForm({ ...form, lastName: e.target.value })} placeholder="Last name" className="input-glass w-full px-3 py-1.5 text-xs" />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold text-aurora-text-secondary uppercase mb-1 block">Class</label>
+                <input value={form.className} onChange={e => setForm({ ...form, className: e.target.value })} placeholder="e.g. JSS1A" className="input-glass w-full px-3 py-1.5 text-xs" />
+              </div>
+              {!editingStudent && (
+                <>
+                  <div>
+                    <label className="text-[10px] font-semibold text-aurora-text-secondary uppercase mb-1 block">Email</label>
+                    <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="Email" className="input-glass w-full px-3 py-1.5 text-xs" />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-semibold text-aurora-text-secondary uppercase mb-1 block">Password</label>
+                    <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="Password" className="input-glass w-full px-3 py-1.5 text-xs" />
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="mt-3 flex justify-end">
+              <button onClick={handleSubmit} disabled={saving} className="btn-primary text-xs font-semibold px-4 py-2 disabled:opacity-50">
+                {saving ? 'Saving...' : editingStudent ? 'Update Student' : 'Add Student'}
+              </button>
+            </div>
+          </GlassCard>
+        )}
 
-      <div className="bg-white rounded-lg border border-[#D8D5CC] overflow-hidden">
-        <table className="w-full">
-          <thead><tr className="bg-[#F7F6F2] border-b border-[#D8D5CC]">
-            {['Student', 'ID', 'Class', 'Level', 'Biometric', 'Status', ''].map(h => (
-              <th key={h} className="text-left text-[10px] font-semibold text-[#5F5E5A] uppercase tracking-wide px-4 py-2">{h}</th>
-            ))}
-          </tr></thead>
-          <tbody>
-            {loading && (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">Loading students...</td></tr>
-            )}
-            {!loading && filtered.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">No students found</td></tr>
-            )}
-            {filtered.map(s => (
-              <tr key={s.id} className="border-b border-[#F7F6F2] hover:bg-[#F7F6F2]">
-                <td className="px-4 py-2.5">
-                  <div className="flex items-center gap-2">
-                    <Avatar initials={(s.name || '').split(' ').map((n: string) => n[0]).join('').slice(0, 2)} size="sm" color="bg-[#E1F5EE] text-[#0F6E56]" />
-                    <span className="font-medium text-xs">{s.name}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-2.5 text-[11px] text-[#5F5E5A] font-mono">{s.id}</td>
-                <td className="px-4 py-2.5 text-xs text-[#5F5E5A]">{s.class}</td>
-                <td className="px-4 py-2.5 text-xs text-[#5F5E5A]">{s.level}</td>
-                <td className="px-4 py-2.5">
-                  <span className={s.biometric ? 'text-[#0F6E56] text-xs font-medium' : 'text-[#791F1F] text-xs'}>
-                    {s.biometric ? 'Enrolled' : 'Not enrolled'}
-                  </span>
-                </td>
-                <td className="px-4 py-2.5"><StatusBadge status={s.status} /></td>
-                <td className="px-4 py-2.5">
-                  <div className="flex gap-1">
-                    <button onClick={() => openEdit(s)} className="text-xs text-[#5F5E5A] border border-[#D8D5CC] px-2 py-0.5 rounded bg-white hover:bg-[#F7F6F2]">Edit</button>
-                    <button onClick={() => setConfirmDelete(s.id)} className="text-xs text-[#791F1F] border border-[#D8D5CC] px-2 py-0.5 rounded bg-white hover:bg-[#FCEBEB]">Delete</button>
-                  </div>
-                </td>
+        {confirmDelete !== null && (
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+            <GlassCard className="w-80">
+              <p className="text-xs font-semibold text-aurora-text mb-2">Delete Student</p>
+              <p className="text-xs text-aurora-text-secondary mb-4">Are you sure you want to delete this student? This action cannot be undone.</p>
+              <div className="flex justify-end gap-2">
+                <button onClick={() => setConfirmDelete(null)} className="btn-secondary text-xs px-3 py-1.5">Cancel</button>
+                <button onClick={() => handleDelete(confirmDelete)} className="text-xs text-white bg-cat-negative px-3 py-1.5 rounded-lg hover:bg-cat-negative/90 transition-colors">Delete</button>
+              </div>
+            </GlassCard>
+          </div>
+        )}
+
+        <GlassCard noPadding>
+          <table className="w-full">
+            <thead>
+              <tr className="bg-aurora-surface/60 border-b border-aurora-divider">
+                {['Student', 'ID', 'Class', 'Level', 'Biometric', 'Status', ''].map(h => (
+                  <th key={h} className="text-left text-[10px] font-semibold text-aurora-text-secondary uppercase tracking-wide px-4 py-2">{h}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {loading && (
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-[11px] text-aurora-text-secondary">Loading students...</td></tr>
+              )}
+              {!loading && filtered.length === 0 && (
+                <tr><td colSpan={7} className="px-4 py-8 text-center text-[11px] text-aurora-text-secondary">No students found</td></tr>
+              )}
+              {filtered.map(s => (
+                <tr key={s.id} className="border-b border-aurora-divider hover:bg-aurora-surface/60 transition-colors">
+                  <td className="px-4 py-2.5">
+                    <div className="flex items-center gap-2">
+                      <Avatar initials={(s.name || '').split(' ').map((n: string) => n[0]).join('').slice(0, 2)} size="sm" />
+                      <span className="font-medium text-xs text-aurora-text">{s.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5 text-[11px] text-aurora-label-muted font-mono tabular-nums">{s.id}</td>
+                  <td className="px-4 py-2.5 text-xs text-aurora-text-secondary">{s.class}</td>
+                  <td className="px-4 py-2.5 text-xs text-aurora-text-secondary">{s.level}</td>
+                  <td className="px-4 py-2.5">
+                    <span className={s.biometric ? 'text-cat-positive text-xs font-medium' : 'text-cat-negative text-xs'}>
+                      {s.biometric ? 'Enrolled' : 'Not enrolled'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2.5"><StatusBadge status={s.status} /></td>
+                  <td className="px-4 py-2.5">
+                    <div className="flex gap-1">
+                      <button onClick={() => openEdit(s)} className="btn-secondary text-xs px-2 py-0.5">Edit</button>
+                      <button onClick={() => setConfirmDelete(s.id)} className="text-xs text-cat-negative border border-cat-negative/25 px-2 py-0.5 rounded-lg bg-cat-negative-tint hover:bg-cat-negative/10 transition-colors">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </GlassCard>
       </div>
     </div>
   )
