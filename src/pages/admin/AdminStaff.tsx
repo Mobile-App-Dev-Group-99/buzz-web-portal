@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
+import { Search } from 'lucide-react'
 import Avatar from '../../components/Avatar'
+import GlassCard from '../../components/GlassCard'
+import AuroraBackground from '../../components/AuroraBackground'
 import { getAdminTeachers, deleteTeacher } from '../../services/api'
 
 export default function AdminStaff() {
@@ -45,61 +48,69 @@ export default function AdminStaff() {
   }
 
   return (
-    <div>
-      <div className="flex gap-2 mb-4">
-        <input
-          placeholder="Search staff..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="border border-[#D8D5CC] rounded-lg px-3 py-1.5 text-xs w-64 outline-none focus:border-[#1D9E75] bg-white"
-        />
-      </div>
-
-      {confirmDelete !== null && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg border border-[#D8D5CC] p-5 w-80 shadow-lg">
-            <p className="text-xs font-semibold text-[#1a1a18] mb-2">Delete Staff Member</p>
-            <p className="text-xs text-[#5F5E5A] mb-4">Are you sure you want to delete this staff member? This action cannot be undone.</p>
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setConfirmDelete(null)} className="text-xs text-[#5F5E5A] border border-[#D8D5CC] px-3 py-1.5 rounded-lg hover:bg-[#F7F6F2]">Cancel</button>
-              <button onClick={() => handleDelete(confirmDelete)} className="text-xs text-white bg-[#791F1F] px-3 py-1.5 rounded-lg hover:bg-[#5C1717]">Delete</button>
-            </div>
+    <div className="relative min-h-screen">
+      <AuroraBackground />
+      <div className="relative z-10 space-y-4">
+        <div className="flex gap-2">
+          <div className="relative flex-1 max-w-xs">
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-aurora-label-muted" />
+            <input
+              placeholder="Search staff..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="input-glass pl-9 pr-3 py-1.5 text-xs w-full"
+            />
           </div>
         </div>
-      )}
 
-      <div className="bg-white rounded-lg border border-[#D8D5CC] overflow-hidden">
-        <table className="w-full">
-          <thead><tr className="bg-[#F7F6F2] border-b border-[#D8D5CC]">
-            {['Name', 'Role', 'Email', 'Last Login', ''].map(h => (
-              <th key={h} className="text-left text-[10px] font-semibold text-[#5F5E5A] uppercase tracking-wide px-4 py-2">{h}</th>
-            ))}
-          </tr></thead>
-          <tbody>
-            {loading && (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">Loading staff...</td></tr>
-            )}
-            {!loading && filtered.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-[11px] text-[#5F5E5A]">No staff found</td></tr>
-            )}
-            {filtered.map(s => (
-              <tr key={s.id} className="border-b border-[#F7F6F2] hover:bg-[#F7F6F2]">
-                <td className="px-4 py-2.5">
-                  <div className="flex items-center gap-2">
-                    <Avatar initials={(s.name || '').split(' ').map((n: string) => n[0]).join('').slice(0, 2)} size="sm" color="bg-[#E1F5EE] text-[#0F6E56]" />
-                    <span className="font-medium text-xs">{s.name}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-2.5 text-xs text-[#5F5E5A]">{s.role}</td>
-                <td className="px-4 py-2.5 text-xs text-[#5F5E5A]">{s.email}</td>
-                <td className="px-4 py-2.5 text-[11px] text-[#5F5E5A] font-mono">{s.lastLogin}</td>
-                <td className="px-4 py-2.5">
-                  <button onClick={() => setConfirmDelete(s.id)} className="text-xs text-[#791F1F] border border-[#D8D5CC] px-2 py-0.5 rounded bg-white hover:bg-[#FCEBEB]">Delete</button>
-                </td>
+        {confirmDelete !== null && (
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+            <GlassCard className="w-80">
+              <p className="text-xs font-semibold text-aurora-text mb-2">Delete Staff Member</p>
+              <p className="text-xs text-aurora-text-secondary mb-4">Are you sure you want to delete this staff member? This action cannot be undone.</p>
+              <div className="flex justify-end gap-2">
+                <button onClick={() => setConfirmDelete(null)} className="btn-secondary text-xs px-3 py-1.5">Cancel</button>
+                <button onClick={() => handleDelete(confirmDelete)} className="text-xs text-white bg-cat-negative px-3 py-1.5 rounded-lg hover:bg-cat-negative/90 transition-colors">Delete</button>
+              </div>
+            </GlassCard>
+          </div>
+        )}
+
+        <GlassCard noPadding>
+          <table className="w-full">
+            <thead>
+              <tr className="bg-aurora-surface/60 border-b border-aurora-divider">
+                {['Name', 'Role', 'Class', 'Email', ''].map(h => (
+                  <th key={h} className="text-left text-[10px] font-semibold text-aurora-text-secondary uppercase tracking-wide px-4 py-2">{h}</th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {loading && (
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-[11px] text-aurora-text-secondary">Loading staff...</td></tr>
+              )}
+              {!loading && filtered.length === 0 && (
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-[11px] text-aurora-text-secondary">No staff found</td></tr>
+              )}
+              {filtered.map(s => (
+                <tr key={s.id} className="border-b border-aurora-divider hover:bg-aurora-surface/60 transition-colors">
+                  <td className="px-4 py-2.5">
+                    <div className="flex items-center gap-2">
+                      <Avatar initials={(s.name || '').split(' ').map((n: string) => n[0]).join('').slice(0, 2)} size="sm" />
+                      <span className="font-medium text-xs text-aurora-text">{s.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-2.5 text-xs text-aurora-text-secondary">{s.role}</td>
+                  <td className="px-4 py-2.5 text-xs text-aurora-text-secondary">{s.className || '—'}</td>
+                  <td className="px-4 py-2.5 text-xs text-aurora-text-secondary">{s.email}</td>
+                  <td className="px-4 py-2.5">
+                    <button onClick={() => setConfirmDelete(s.id)} className="text-xs text-cat-negative border border-cat-negative/25 px-2 py-0.5 rounded-lg bg-cat-negative-tint hover:bg-cat-negative/10 transition-colors">Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </GlassCard>
       </div>
     </div>
   )

@@ -1,6 +1,8 @@
 import { Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Avatar from './Avatar'
+import AuroraBackground from './AuroraBackground'
+import { Hexagon, LogOut } from 'lucide-react'
 
 export default function TeacherLayout() {
   const { user, logout } = useAuth()
@@ -12,30 +14,34 @@ export default function TeacherLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F6F2] font-sans text-sm">
-      <header className="bg-[#1a1a18] px-6 py-4 flex items-center justify-between">
+    <div className="min-h-screen bg-aurora-bg font-sans text-sm flex flex-col">
+      <AuroraBackground />
+      <header className="sidebar-glass relative z-10 px-6 py-4 flex items-center justify-between border-b border-aurora-divider flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-[#1D9E75] rounded-lg flex items-center justify-center">
-            <span className="text-white text-xs font-bold">B</span>
+          <div className="w-9 h-9 bg-aurora-text rounded-xl flex items-center justify-center shadow-md">
+            <Hexagon className="w-5 h-5 text-white" strokeWidth={2} />
           </div>
           <div>
-            <div className="text-white font-semibold text-sm">BuzzApp</div>
-            <div className="text-gray-500 text-[10px]">Teacher Portal</div>
+            <div className="text-aurora-text font-bold text-sm">BuzzApp</div>
+            <div className="text-aurora-label-muted text-[10px]">Teacher Portal</div>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-white/5 rounded-lg px-3 py-1.5">
+          <div className="flex items-center gap-2.5 glass-card px-3 py-1.5">
             <Avatar
               initials={user ? `${(user.firstName || '')[0] || ''}${(user.lastName || '')[0] || ''}` : 'KB'}
               size="sm"
-              color="bg-[#1D9E75] text-white"
+              color="bg-cat-positive text-white"
             />
-            <span className="text-gray-300 text-xs">{user ? `${user.firstName} ${user.lastName}` : 'Teacher'}</span>
+            <span className="text-aurora-text text-xs font-medium">{user ? `${user.firstName} ${user.lastName}` : 'Teacher'}</span>
           </div>
-          <button onClick={handleLogout} className="text-xs text-gray-500 hover:text-gray-300">Log out</button>
+          <button onClick={handleLogout} className="text-xs text-aurora-label-muted hover:text-cat-negative flex items-center gap-1 transition-colors">
+            <LogOut className="w-3.5 h-3.5" />
+            Log out
+          </button>
         </div>
       </header>
-      <div className="p-6">
+      <div className="flex-1 p-6 relative z-10 overflow-y-auto">
         <Outlet />
       </div>
     </div>

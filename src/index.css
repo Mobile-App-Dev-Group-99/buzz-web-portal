@@ -1,1 +1,306 @@
 @import "tailwindcss";
+
+/* ─── Light Aurora Design System — CSS Custom Properties ─── */
+@theme {
+  --color-aurora-bg: #E9EAEF;
+  --color-aurora-surface: #F6F7FB;
+  --color-aurora-card: rgba(255, 255, 255, 0.85);
+  --color-aurora-card-border: rgba(255, 255, 255, 0.9);
+  --color-aurora-text: #1A1D29;
+  --color-aurora-text-secondary: #8A8D98;
+  --color-aurora-label-muted: #9497A3;
+  --color-aurora-divider: #EEF0F3;
+
+  --color-cat-positive: #16A34A;
+  --color-cat-positive-tint: #E1F3E9;
+  --color-cat-positive-glow: rgba(34, 197, 94, 0.35);
+  --color-cat-warning: #D97706;
+  --color-cat-warning-tint: #FCECDA;
+  --color-cat-warning-glow: rgba(245, 158, 11, 0.35);
+  --color-cat-negative: #DC2626;
+  --color-cat-negative-tint: #FBE3E3;
+  --color-cat-negative-glow: rgba(239, 68, 68, 0.30);
+  --color-cat-info: #2563EB;
+  --color-cat-info-tint: #E3ECFB;
+  --color-cat-info-glow: rgba(59, 130, 246, 0.32);
+
+  --color-glass-bg: rgba(255, 255, 255, 0.85);
+  --color-glass-border: rgba(255, 255, 255, 0.9);
+  --color-glass-blur: 14px;
+
+  --color-aurora-blob1: rgba(34, 197, 94, 0.12);
+  --color-aurora-blob2: rgba(59, 130, 246, 0.14);
+  --color-aurora-blob3: rgba(245, 158, 11, 0.10);
+}
+
+/* ─── Base ─── */
+body {
+  background-color: var(--color-aurora-bg);
+  color: var(--color-aurora-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Glass Card ─── */
+.glass-card {
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(var(--color-glass-blur));
+  -webkit-backdrop-filter: blur(var(--color-glass-blur));
+  border: 1px solid var(--color-glass-border);
+  border-radius: 22px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.glass-card-press:active {
+  transform: scale(0.97);
+}
+
+/* ─── Glass Surface ─── */
+.glass-surface {
+  background: var(--color-aurora-surface);
+  border-radius: 22px;
+}
+
+/* ─── Aurora Background Blobs ─── */
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  animation: aurora-pulse 5s ease-in-out infinite;
+}
+
+.aurora-blob-1 {
+  width: 400px;
+  height: 400px;
+  top: -100px;
+  right: -100px;
+  background: var(--color-aurora-blob1);
+  animation-delay: 0s;
+}
+
+.aurora-blob-2 {
+  width: 350px;
+  height: 350px;
+  bottom: 100px;
+  left: -80px;
+  background: var(--color-aurora-blob2);
+  animation-delay: 1.5s;
+}
+
+.aurora-blob-3 {
+  width: 280px;
+  height: 280px;
+  top: 200px;
+  right: -50px;
+  background: var(--color-aurora-blob3);
+  animation-delay: 0.8s;
+}
+
+@keyframes aurora-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+/* ─── Idle Float Animation ─── */
+@keyframes idle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.animate-float {
+  animation: idle-float 2.6s ease-in-out infinite;
+}
+
+.animate-float-delay-1 { animation-delay: 0.25s; }
+.animate-float-delay-2 { animation-delay: 0.50s; }
+.animate-float-delay-3 { animation-delay: 0.75s; }
+.animate-float-delay-4 { animation-delay: 1.00s; }
+
+/* ─── Ambient Glow Pulse ─── */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.15); }
+}
+
+.animate-glow {
+  animation: glow-pulse 3.2s ease-in-out infinite;
+}
+
+/* ─── Status Pulse ─── */
+@keyframes status-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.animate-status-pulse {
+  animation: status-pulse 1.5s ease-in-out infinite;
+}
+
+/* ─── Count Up (entry) ─── */
+@keyframes count-up-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-count-enter {
+  animation: count-up-enter 0.8s ease-out forwards;
+}
+
+/* ─── Tap Reaction ─── */
+.tap-reaction {
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.tap-reaction:active {
+  transform: scale(1.25) rotate(-8deg);
+}
+
+/* ─── Category Badge ─── */
+.category-badge-positive {
+  background: var(--color-cat-positive-tint);
+  color: var(--color-cat-positive);
+  border: 1px solid rgba(22, 163, 74, 0.25);
+}
+
+.category-badge-warning {
+  background: var(--color-cat-warning-tint);
+  color: var(--color-cat-warning);
+  border: 1px solid rgba(217, 119, 6, 0.25);
+}
+
+.category-badge-negative {
+  background: var(--color-cat-negative-tint);
+  color: var(--color-cat-negative);
+  border: 1px solid rgba(220, 38, 38, 0.25);
+}
+
+.category-badge-info {
+  background: var(--color-cat-info-tint);
+  color: var(--color-cat-info);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+/* ─── Stat Card Glow ─── */
+.stat-glow-positive { box-shadow: 0 0 20px var(--color-cat-positive-glow); }
+.stat-glow-warning { box-shadow: 0 0 20px var(--color-cat-warning-glow); }
+.stat-glow-negative { box-shadow: 0 0 20px var(--color-cat-negative-glow); }
+.stat-glow-info { box-shadow: 0 0 20px var(--color-cat-info-glow); }
+
+/* ─── Tabular Nums ─── */
+.tabular-nums { font-variant-numeric: tabular-nums; }
+
+/* ─── Sidebar ─── */
+.sidebar-glass {
+  background: var(--color-glass-bg);
+  backdrop-filter: blur(var(--color-glass-blur));
+  -webkit-backdrop-filter: blur(var(--color-glass-blur));
+  border-right: 1px solid var(--color-glass-border);
+}
+
+/* ─── Input ─── */
+.input-glass {
+  background: var(--color-aurora-surface);
+  border: 1.5px solid #D5D8E0;
+  border-radius: 12px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-glass:focus {
+  outline: none;
+  border-color: var(--color-cat-positive);
+  box-shadow: 0 0 0 3px var(--color-cat-positive-glow);
+}
+
+.input-glass.input-error {
+  border-color: var(--color-cat-negative);
+  box-shadow: 0 0 0 3px var(--color-cat-negative-glow);
+}
+
+.input-glass.input-success {
+  border-color: var(--color-cat-positive);
+  box-shadow: 0 0 0 3px var(--color-cat-positive-glow);
+}
+
+/* ─── Button ─── */
+.btn-primary {
+  background: var(--color-aurora-text);
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 12px rgba(26, 29, 41, 0.3);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-secondary {
+  background: var(--color-cat-positive-tint);
+  color: var(--color-cat-positive);
+  border-radius: 12px;
+  font-weight: 600;
+  transition: transform 0.2s;
+}
+
+.btn-secondary:active {
+  transform: scale(0.97);
+}
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-glow,
+  .animate-status-pulse {
+    animation: none !important;
+  }
+
+  .aurora-blob {
+    animation: none !important;
+  }
+
+  .tap-reaction:active {
+    transform: none;
+  }
+
+  .glass-card:hover {
+    transform: none;
+  }
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D5D8E0;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B0B3BC;
+}
