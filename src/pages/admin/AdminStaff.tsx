@@ -4,12 +4,14 @@ import Avatar from '../../components/Avatar'
 import GlassCard from '../../components/GlassCard'
 import AuroraBackground from '../../components/AuroraBackground'
 import { getAdminTeachers, deleteTeacher } from '../../services/api'
+import { UserMenu, UserDetailModal, type UserRow } from '../../components/UserMenu'
 
 export default function AdminStaff() {
   const [staff, setStaff] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
+  const [detail, setDetail] = useState<UserRow | null>(null)
 
   const loadStaff = () => {
     setLoading(true)
@@ -47,6 +49,20 @@ export default function AdminStaff() {
     }
   }
 
+  const openDetail = (s: any) => {
+    setDetail({
+      id: s.id,
+      name: s.name,
+      rows: [
+        { label: 'Staff ID', value: String(s.id) },
+        { label: 'Role', value: s.role || '—' },
+        { label: 'Class', value: s.className || 'No class assigned' },
+        { label: 'Email', value: s.email || '—' },
+        { label: 'Last login', value: s.lastLogin || '—' },
+      ],
+    })
+  }
+
   return (
     <div className="relative min-h-screen">
       <AuroraBackground />
@@ -76,6 +92,8 @@ export default function AdminStaff() {
           </div>
         )}
 
+        <UserDetailModal user={detail} onClose={() => setDetail(null)} />
+
         <GlassCard noPadding>
           <table className="w-full">
             <thead>
@@ -104,7 +122,7 @@ export default function AdminStaff() {
                   <td className="px-4 py-2.5 text-xs text-aurora-text-secondary">{s.className || '—'}</td>
                   <td className="px-4 py-2.5 text-xs text-aurora-text-secondary">{s.email}</td>
                   <td className="px-4 py-2.5">
-                    <button onClick={() => setConfirmDelete(s.id)} className="text-xs text-cat-negative border border-cat-negative/25 px-2 py-0.5 rounded-lg bg-cat-negative-tint hover:bg-cat-negative/10 transition-colors">Delete</button>
+                    <UserMenu onView={() => openDetail(s)} onDelete={() => setConfirmDelete(s.id)} />
                   </td>
                 </tr>
               ))}

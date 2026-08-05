@@ -4,12 +4,14 @@ import Avatar from '../../components/Avatar'
 import GlassCard from '../../components/GlassCard'
 import AuroraBackground from '../../components/AuroraBackground'
 import { getAdminParents, deleteParent } from '../../services/api'
+import { UserMenu, UserDetailModal, type UserRow } from '../../components/UserMenu'
 
 export default function AdminParents() {
   const [parents, setParents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
+  const [detail, setDetail] = useState<UserRow | null>(null)
 
   const loadParents = () => {
     setLoading(true)
@@ -44,6 +46,17 @@ export default function AdminParents() {
     }
   }
 
+  const openDetail = (p: any) => {
+    setDetail({
+      id: p.id,
+      name: p.name,
+      rows: [
+        { label: 'Parent ID', value: String(p.id) },
+        { label: 'Phone', value: p.phone || '—' },
+      ],
+    })
+  }
+
   return (
     <div className="relative min-h-screen">
       <AuroraBackground />
@@ -73,6 +86,8 @@ export default function AdminParents() {
           </div>
         )}
 
+        <UserDetailModal user={detail} onClose={() => setDetail(null)} />
+
         <GlassCard noPadding>
           <table className="w-full">
             <thead>
@@ -100,7 +115,7 @@ export default function AdminParents() {
                   <td className="px-4 py-2.5 text-[11px] text-aurora-label-muted font-mono tabular-nums">{p.id}</td>
                   <td className="px-4 py-2.5 text-xs text-aurora-text-secondary">{p.phone}</td>
                   <td className="px-4 py-2.5">
-                    <button onClick={() => setConfirmDelete(p.id)} className="text-xs text-cat-negative border border-cat-negative/25 px-2 py-0.5 rounded-lg bg-cat-negative-tint hover:bg-cat-negative/10 transition-colors">Delete</button>
+                    <UserMenu onView={() => openDetail(p)} onDelete={() => setConfirmDelete(p.id)} />
                   </td>
                 </tr>
               ))}

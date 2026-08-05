@@ -52,7 +52,7 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        <nav className="flex-1 py-3 relative z-10">
+<nav className="flex-1 overflow-y-auto py-3 relative z-10">
           <div className="px-4 py-1 text-[10px] font-semibold text-aurora-label-muted uppercase tracking-wider">Main</div>
           {NAV_ITEMS.slice(0, 6).map(item => {
             const Icon = item.icon
@@ -62,15 +62,15 @@ export default function AdminLayout() {
                 to={item.to}
                 end={item.end}
                 className={({ isActive }) =>
-                  `w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium transition-all ${
+                  `w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium transition-all outline-none focus-visible:ring-2 focus-visible:ring-cat-positive/60 focus-visible:ring-inset ${
                     isActive
                       ? 'bg-aurora-surface text-aurora-text border-l-2 border-cat-positive rounded-r-lg mx-2 px-2'
-                      : 'text-aurora-text-secondary hover:bg-aurora-surface/50 hover:text-aurora-text mx-2 px-2 rounded-lg'
+                      : 'text-aurora-text-secondary hover:bg-aurora-surface/50 hover:text-aurora-text active:bg-aurora-surface/70 mx-2 px-2 rounded-lg'
                   }`
                 }
               >
-                <Icon className="w-4 h-4" strokeWidth={1.8} />
-                {item.label}
+                <Icon className="w-4 h-4 shrink-0" strokeWidth={1.8} />
+                <span className="truncate">{item.label}</span>
               </NavLink>
             )
           })}
@@ -81,16 +81,17 @@ export default function AdminLayout() {
               <NavLink
                 key={item.to}
                 to={item.to}
+                end={item.end}
                 className={({ isActive }) =>
-                  `w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium transition-all ${
+                  `w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium transition outline-none focus-visible:ring-2 focus-visible:ring-cat-positive/60 focus-visible:outline-none ${
                     isActive
                       ? 'bg-aurora-surface text-aurora-text border-l-2 border-cat-positive rounded-r-lg mx-2 px-2'
-                      : 'text-aurora-text-secondary hover:bg-aurora-surface/50 hover:text-aurora-text mx-2 px-2 rounded-lg'
+                      : 'text-aurora-text-secondary hover:bg-aurora-surface/50 hover:text-aurora-text active:bg-aurora-surface/70 mx-2 px-2 rounded-lg'
                   }`
                 }
               >
-                <Icon className="w-4 h-4" strokeWidth={1.8} />
-                {item.label}
+                <Icon className="w-4 h-4 shrink-0" strokeWidth={1.8} />
+                <span className="truncate">{item.label}</span>
               </NavLink>
             )
           })}

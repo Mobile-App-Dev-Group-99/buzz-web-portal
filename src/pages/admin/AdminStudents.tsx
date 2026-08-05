@@ -5,6 +5,7 @@ import Avatar from '../../components/Avatar'
 import GlassCard from '../../components/GlassCard'
 import AuroraBackground from '../../components/AuroraBackground'
 import { getAdminStudents, createStudent, updateStudent, deleteStudent } from '../../services/api'
+import { UserMenu, UserDetailModal, type UserRow } from '../../components/UserMenu'
 
 const emptyForm = { firstName: '', lastName: '', className: '', email: '', password: '' }
 
@@ -17,6 +18,7 @@ export default function AdminStudents() {
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null)
+  const [detail, setDetail] = useState<UserRow | null>(null)
 
   const loadStudents = () => {
     setLoading(true)
@@ -87,6 +89,21 @@ export default function AdminStudents() {
     } catch (err) {
       console.warn('Delete error:', err)
     }
+  }
+
+  const openDetail = (s: any) => {
+    setDetail({
+      id: s.id,
+      name: s.name,
+      rows: [
+        { label: 'Student ID', value: String(s.id) },
+        { label: 'Class', value: s.class },
+        { label: 'Level', value: s.level },
+        { label: 'Email', value: s.email || '—' },
+        { label: 'Biometric', value: s.biometric ? 'Enrolled' : 'Not enrolled' },
+        { label: 'Status', value: s.status || '—' },
+      ],
+    })
   }
 
   return (
@@ -163,6 +180,8 @@ export default function AdminStudents() {
           </div>
         )}
 
+        <UserDetailModal user={detail} onClose={() => setDetail(null)} />
+
         <GlassCard noPadding>
           <table className="w-full">
             <thead>
@@ -197,9 +216,9 @@ export default function AdminStudents() {
                   </td>
                   <td className="px-4 py-2.5"><StatusBadge status={s.status} /></td>
                   <td className="px-4 py-2.5">
-                    <div className="flex gap-1">
+                    <div className="flex items-center gap-1">
                       <button onClick={() => openEdit(s)} className="btn-secondary text-xs px-2 py-0.5">Edit</button>
-                      <button onClick={() => setConfirmDelete(s.id)} className="text-xs text-cat-negative border border-cat-negative/25 px-2 py-0.5 rounded-lg bg-cat-negative-tint hover:bg-cat-negative/10 transition-colors">Delete</button>
+                      <UserMenu onView={() => openDetail(s)} onDelete={() => setConfirmDelete(s.id)} />
                     </div>
                   </td>
                 </tr>
