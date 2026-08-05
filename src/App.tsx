@@ -13,6 +13,7 @@ const AdminExeats = React.lazy(() => import('./pages/admin/AdminExeats'))
 const AdminResults = React.lazy(() => import('./pages/admin/AdminResults'))
 const AdminMessaging = React.lazy(() => import('./pages/admin/AdminMessaging'))
 const AdminStaff = React.lazy(() => import('./pages/admin/AdminStaff'))
+const AdminParents = React.lazy(() => import('./pages/admin/AdminParents'))
 const AdminReports = React.lazy(() => import('./pages/admin/AdminReports'))
 const AdminSettings = React.lazy(() => import('./pages/admin/AdminSettings'))
 const TeacherDashboard = React.lazy(() => import('./pages/teacher/TeacherDashboard'))
@@ -55,6 +56,7 @@ function AppRoutes() {
           <Route path="results" element={<AdminResults />} />
           <Route path="messaging" element={<AdminMessaging />} />
           <Route path="staff" element={<AdminStaff />} />
+          <Route path="parents" element={<AdminParents />} />
           <Route path="reports" element={<AdminReports />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>

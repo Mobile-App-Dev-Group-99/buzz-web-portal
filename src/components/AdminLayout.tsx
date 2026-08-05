@@ -2,12 +2,13 @@ import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Avatar from './Avatar'
 import AuroraBackground from './AuroraBackground'
-import { Hexagon, LayoutDashboard, Radio, Users, FileOutput, BarChart3, MessageSquare, UserCog, ClipboardList, Settings, LogOut, CalendarDays } from 'lucide-react'
+import { Hexagon, LayoutDashboard, Radio, Users, FileOutput, BarChart3, MessageSquare, UserCog, ClipboardList, Settings, LogOut, CalendarDays, UserCheck } from 'lucide-react'
 
 const NAV_ITEMS = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
   { to: '/admin/attendance', icon: Radio, label: 'Gate Attendance' },
   { to: '/admin/students', icon: Users, label: 'Students' },
+  { to: '/admin/parents', icon: UserCheck, label: 'Parents' },
   { to: '/admin/exeats', icon: FileOutput, label: 'Exeats' },
   { to: '/admin/results', icon: BarChart3, label: 'Results' },
   { to: '/admin/messaging', icon: MessageSquare, label: 'Messaging' },

@@ -117,6 +117,11 @@ export async function deleteTeacher(id: number) {
   return res.data
 }
 
+export async function deleteParent(id: number) {
+  const res = await attendanceApi.delete(`/api/admin/parent/${id}`)
+  return res.data
+}
+
 export async function createExeat(data: { studentId: number; reason: string; expectedReturn?: string }) {
   const res = await safetyApi.post('/api/exeat/create', data)
   return res.data
