@@ -94,22 +94,11 @@ export async function getAdminParents() {
   return res.data
 }
 
-function getSchoolId(): number | undefined {
-  try {
-    const raw = localStorage.getItem('user')
-    if (raw) {
-      const user = JSON.parse(raw)
-      return user.schoolId || user.school?.id
-    }
-  } catch {}
-  return undefined
-}
-
 export async function createStudent(data: {
   firstName: string; lastName: string; className: string;
   email: string; password: string;
 }) {
-  const res = await authApi.post('/api/auth/register', { ...data, role: 'STUDENT', schoolId: getSchoolId() })
+  const res = await attendanceApi.post('/api/admin/student', data)
   return res.data
 }
 
